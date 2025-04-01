@@ -1,15 +1,26 @@
-from models import db, bcrypt
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, sessionmaker
+import frames.login
+import frames.register
+import models
 import tkinter as tk
-from frames.login import Login
+import frames
+import sqlite3
 
 # bcrypt.init_app(app)
-# db.init_app(app)
+engine = create_engine('sqlite:///hospital.db', echo=True)
+models.Base.metadata.create_all(bind=engine)
+Session = sessionmaker(bind=engine)
+session = Session()
 
 # todo: need to create database
-root = tk.Tk()
+login = tk.Tk()
+register = tk.Tk()
 
 # todo: rerun at home
-login_window = Login(root)
+login_window = frames.login.Login(login, session)
+register_window = frames.register.Register(register, session)
 
 if __name__ == '__main__':
-    root.mainloop()
+    login.mainloop()
+    register.mainloop()

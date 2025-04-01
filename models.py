@@ -1,21 +1,27 @@
-from sqlalchemy.orm import Mapped, mapped_column
-from flask_sqlalchemy import SQLAlchemy
-from flask_bcrypt import Bcrypt
+from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase
+from sqlalchemy import String, Integer
+import bcrypt
 
-db = SQLAlchemy()
-bcrypt = Bcrypt()
+class Base(DeclarativeBase):
+    pass
 
-class User(db.Model):
-    uuid: Mapped[int] = mapped_column(primary_key=True)
-    username: Mapped[str] = mapped_column(db.String(50), nullable=False)
-    password_hash: Mapped[str] = mapped_column(db.String(50), nullable=False)
+class User(Base):
+    __tablename__ = 'user'
 
-    def set_password(self, password):
-        self.password_hash = bcrypt.generate_password_hash(password)
+    uuid: Mapped[int] = mapped_column(Integer, primary_key=True)
+    username: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
+    password_hash: Mapped[str] = mapped_column(String(60), nullable=False)
 
-    def check_password(self, password):
-        return bcrypt.check_password_hash(self.password_hash, password)
+    def set_password(self, password: str):
+        self.password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+
+    def check_password(self, password: str):
+        return bcrypt.checkpw(password.encode(), self.password_hash.encode())
     
-    def __init__(self): # converts plaintext password to hash upon creation.
+    def __init__(self, username, password): # converts plaintext password to hash upon creation.
         super().__init__()
-        self.set_password(self.password_hash)
+        self.username = username
+        self.set_password(password)
+
+    def __repr__(self):
+        return f"Username: {self.username}\nPassword: {self.password_hash}"
