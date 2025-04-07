@@ -4,7 +4,7 @@ windows = {}
 
 # use this to add a window that can be switched to
 def add_window(window_name, frame: tk.Frame):
-    frame.place(relx=0.5, rely=0.5, anchor='center')
+    frame.grid(row=0, column=0)
     windows[window_name] = frame
 
 # switches to window
