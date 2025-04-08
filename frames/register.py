@@ -7,11 +7,36 @@ from custom_widgets import PlaceholderEntry, HyperlinkLabel
 from window_manager import switch_to_window
 
 class Register(tk.Frame):
-    ent_username: PlaceholderEntry = None
-    ent_password: PlaceholderEntry = None
-    btn_login: tk.Button = None
-
-    session = None
+    def disablePatientForm(self):
+        for ent in self.patient_form_elements:
+                if isinstance(ent, PlaceholderEntry):       
+                    ent.set_disabled(True)
+    
+    def enablePatientForm(self):
+        for ent in self.patient_form_elements:
+                if isinstance(ent, PlaceholderEntry):       
+                    ent.set_disabled(False)      
+    
+    def on_role_select(self, event):
+        selected_role = self.cmb_role.get()
+        
+        if selected_role == 'patient':
+            self.enablePatientForm()
+        else:
+            self.disablePatientForm()
+        
+        match selected_role:
+            case 'admin':
+                pass
+            
+            case 'doctor':
+                pass
+            
+            case 'nurse':
+                pass
+            
+            case 'patient':
+                pass
 
     def register_account(self):
         # todo: validate contents
@@ -40,7 +65,6 @@ class Register(tk.Frame):
 
         frame.grid_rowconfigure(3, pad=10)
         frame.grid_rowconfigure(5, pad=10)
-    
         
         ttk.Button(frame, text="Back").grid(
             row=0, column=0, pady=10, sticky='nw'
@@ -55,16 +79,11 @@ class Register(tk.Frame):
             row=1, column=0, pady=10
         )
 
-        self.ent_username = PlaceholderEntry(
-            frame,
-            is_password=False,
-            normal_font=("Arial", 12),
-            placeholder_font=("Arial", 12),
-            placeholder_text="User Type",
-            placeholder_color="#bfbfbf",
-            text_color="black",
-        )   
-        self.ent_username.grid(row=2, column=0, ipady=7.5, ipadx=30)
+        roles = [e.value for e in models.UserRole]
+        self.cmb_role = ttk.Combobox(frame, values=roles, width=18, state='readonly', font=("Arial", 12), )
+        self.cmb_role.set(roles[0])
+        self.cmb_role.bind('<<ComboboxSelected>>', self.on_role_select)
+        self.cmb_role.grid(row=2, column=0, ipady=7.5, ipadx=30)
 
         self.ent_username = PlaceholderEntry(
             frame,
@@ -93,7 +112,7 @@ class Register(tk.Frame):
             row=1, column=1, pady=10
         )
 
-        self.ent_username = PlaceholderEntry(
+        self.ent_name = PlaceholderEntry(
             frame,
             is_password=False,
             normal_font=("Arial", 12),
@@ -102,9 +121,9 @@ class Register(tk.Frame):
             placeholder_color="#bfbfbf",
             text_color="black",
         )
-        self.ent_username.grid(row=2, column=1, ipady=7.5, ipadx=30)
+        self.ent_name.grid(row=2, column=1, ipady=7.5, ipadx=30)
 
-        self.ent_username = PlaceholderEntry(
+        self.ent_gender = PlaceholderEntry(
             frame,
             is_password=False,
             normal_font=("Arial", 12),
@@ -113,9 +132,9 @@ class Register(tk.Frame):
             placeholder_color="#bfbfbf",
             text_color="black",
         )
-        self.ent_username.grid(row=3, column=1, ipady=7.5, ipadx=30)
+        self.ent_gender.grid(row=3, column=1, ipady=7.5, ipadx=30)
 
-        self.ent_password = PlaceholderEntry(
+        self.ent_age = PlaceholderEntry(
             frame,
             is_password=True,
             normal_font=("Arial", 12),
@@ -124,9 +143,9 @@ class Register(tk.Frame):
             placeholder_color="#bfbfbf",
             text_color="black",
         )
-        self.ent_password.grid(row=4, column=1, ipady=7.5, ipadx=30)
+        self.ent_age.grid(row=4, column=1, ipady=7.5, ipadx=30)
 
-        self.ent_password = PlaceholderEntry(
+        self.ent_contact = PlaceholderEntry(
             frame,
             is_password=True,
             normal_font=("Arial", 12),
@@ -135,45 +154,51 @@ class Register(tk.Frame):
             placeholder_color="#bfbfbf",
             text_color="black",
         )
-        self.ent_password.grid(row=5, column=1, ipady=7.5, ipadx=30)
+        self.ent_contact.grid(row=5, column=1, ipady=7.5, ipadx=30)
 
         # PATIENT COLUMN
         ttk.Label(frame, text="Patient Details", font=("Arial", 12)).grid(
             row=1, column=2, pady=10
         )
 
-        self.ent_username = PlaceholderEntry(
+        patient_form_elements = []
+        self.ent_diseases = PlaceholderEntry(
             frame,
-            is_password=False,
             normal_font=("Arial", 12),
             placeholder_font=("Arial", 12),
             placeholder_text="Chronic Diseases",
             placeholder_color="#bfbfbf",
             text_color="black",
         )
-        self.ent_username.grid(row=2, column=2, ipady=7.5, ipadx=30)
+        self.ent_diseases.grid(row=2, column=2, ipady=7.5, ipadx=30)
+        
+        patient_form_elements.append(self.ent_diseases)
 
-        self.ent_password = PlaceholderEntry(
+        self.ent_allergies = PlaceholderEntry(
             frame,
-            is_password=True,
             normal_font=("Arial", 12),
             placeholder_font=("Arial", 12),
             placeholder_text="Allergies",
             placeholder_color="#bfbfbf",
             text_color="black",
         )
-        self.ent_password.grid(row=3, column=2, ipady=7.5, ipadx=30)
+        self.ent_allergies.grid(row=3, column=2, ipady=7.5, ipadx=30)
+        
+        patient_form_elements.append(self.ent_allergies)
 
-        self.ent_password = PlaceholderEntry(
+        self.ent_treatments = PlaceholderEntry(
             frame,
-            is_password=True,
             normal_font=("Arial", 12),
             placeholder_font=("Arial", 12),
             placeholder_text="Past Treatments",
             placeholder_color="#bfbfbf",
             text_color="black",
         )
-        self.ent_password.grid(row=4, column=2, ipady=7.5, ipadx=30)
+        self.ent_treatments.grid(row=4, column=2, ipady=7.5, ipadx=30)
+        
+        patient_form_elements.append(self.ent_treatments)
+        self.patient_form_elements = patient_form_elements
+        self.disablePatientForm()
 
         self.btn_register = ttk.Button(
             frame,
