@@ -10,10 +10,10 @@ class Base(DeclarativeBase):
 
 # Enum for user roles
 class UserRole(enum.Enum):
-    ADMIN = "admin"
-    DOCTOR = "doctor"
-    NURSE = "nurse"
-    PATIENT = "patient"
+    ADMIN = "ADMIN"
+    DOCTOR = "DOCTOR"
+    NURSE = "NURSE"
+    PATIENT = "PATIENT"
 
 
 class User(Base):
@@ -33,21 +33,15 @@ class User(Base):
     security_answer_hash: Mapped[str] = mapped_column(String(255), nullable=True)
 
     # Relationships
-    doctor_notes: Mapped[list["DoctorNote"]] = relationship(
-        back_populates="doctor", foreign_keys="DoctorNote.doctor_id"
-    )
-    patient_notes: Mapped[list["DoctorNote"]] = relationship(
-        back_populates="patient", foreign_keys="DoctorNote.patient_id"
-    )
-    medical_history: Mapped[list["MedicalHistory"]] = relationship(
-        back_populates="patient"
-    )
     appointments: Mapped[list["Appointment"]] = relationship(
-        back_populates="patient", foreign_keys="Appointment.patient_id"
+        "Appointment", back_populates="patient", foreign_keys="Appointment.patient_id"
     )
     created_appointments: Mapped[list["Appointment"]] = relationship(
-        back_populates="created_by", foreign_keys="Appointment.created_by_id"
+        "Appointment", back_populates="created_by", foreign_keys="Appointment.created_by_id"
     )
+
+    # One-to-one relationship to Patient, only if the user is a patient
+    patient: Mapped["Patient"] = relationship("Patient", back_populates="user", uselist=False)
 
     def set_password(self, password: str):
         self.password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
@@ -55,54 +49,25 @@ class User(Base):
     def check_password(self, password: str):
         return bcrypt.checkpw(password.encode(), self.password_hash.encode())
 
-    def __init__(self, username: str, password: str, role: str, full_name: str):
+    def __init__(self, username: str, password: str, role: str, full_name: str, age: int, gender: str, contact_info: str):
         super().__init__()
         self.username = username
         self.set_password(password)
         self.role = role
         self.full_name = full_name
+        self.age = age
+        self.gender = gender
+        self.contact_info = contact_info
+        
 
     def __repr__(self):
         return f"<User(username={self.username}, role={self.role})>"
 
 
-class MedicalHistory(Base):
-    __tablename__ = "medical_history"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    patient_id: Mapped[int] = mapped_column(ForeignKey("user.uuid"), nullable=False)
-    chronic_diseases: Mapped[str] = mapped_column(Text)
-    past_treatments: Mapped[str] = mapped_column(Text)
-    allergies: Mapped[str] = mapped_column(Text)
-
-    patient: Mapped["User"] = relationship(back_populates="medical_history")
-
-
-class DoctorNote(Base):
-    __tablename__ = "doctor_note"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    patient_id: Mapped[int] = mapped_column(ForeignKey("user.uuid"), nullable=False)
-    doctor_id: Mapped[int] = mapped_column(ForeignKey("user.uuid"), nullable=False)
-    note: Mapped[str] = mapped_column(Text)
-    prescription: Mapped[str] = mapped_column(Text)
-    created_at: Mapped[datetime.datetime] = mapped_column(
-        default=datetime.datetime.utcnow
-    )
-
-    patient: Mapped["User"] = relationship(
-        foreign_keys=[patient_id], back_populates="patient_notes"
-    )
-    doctor: Mapped["User"] = relationship(
-        foreign_keys=[doctor_id], back_populates="doctor_notes"
-    )
-
-
 class Appointment(Base):
     __tablename__ = "appointment"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    patient_id: Mapped[int] = mapped_column(ForeignKey("user.uuid"), nullable=False)
+    patient_id: Mapped[int] = mapped_column(ForeignKey("user.uuid"), primary_key=True, nullable=False)
     scheduled_time: Mapped[datetime.datetime] = mapped_column(nullable=False)
     reason: Mapped[str] = mapped_column(Text)
     created_by_id: Mapped[int] = mapped_column(ForeignKey("user.uuid"))
@@ -113,3 +78,26 @@ class Appointment(Base):
     created_by: Mapped["User"] = relationship(
         foreign_keys=[created_by_id], back_populates="created_appointments"
     )
+
+class Patient(Base):
+    __tablename__ = "patient"
+
+    # user_id is the primary key and foreign key linking to the User table
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.uuid"), primary_key=True)
+
+    # Additional patient-specific information
+    treatments: Mapped[str] = mapped_column(Text, nullable=True)
+    allergies: Mapped[str] = mapped_column(Text, nullable=True)
+    diseases: Mapped[str] = mapped_column(Text, nullable=True)
+
+    # Relationship to User (one-to-one relationship)
+    user: Mapped["User"] = relationship("User", back_populates="patient")
+
+    def __init__(self, user_id: int, treatments: str = "", allergies: str = "", diseases: str = ""):
+        self.user_id = user_id
+        self.treatments = treatments
+        self.allergies = allergies
+        self.diseases = diseases
+
+    def __repr__(self):
+        return f"<Patient(user_id={self.user_id}, treatments={self.treatments}, allergies={self.allergies}, diseases={self.diseases})>"
