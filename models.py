@@ -24,13 +24,13 @@ class User(Base):
     password_hash: Mapped[str] = mapped_column(String(60), nullable=False)
 
     # Additional Fields
-    role: Mapped[UserRole] = mapped_column(Enum(UserRole), nullable=False)
-    full_name: Mapped[str] = mapped_column(String(100))
+    role: Mapped[UserRole] = mapped_column(Enum(UserRole), nullable=True)
+    full_name: Mapped[str] = mapped_column(String(100), nullable=True)
     age: Mapped[int] = mapped_column(nullable=True)
-    gender: Mapped[str] = mapped_column(String(10))
-    contact_info: Mapped[str] = mapped_column(String(255))
-    security_question: Mapped[str] = mapped_column(String(255))
-    security_answer_hash: Mapped[str] = mapped_column(String(255))
+    gender: Mapped[str] = mapped_column(String(10), nullable=True)
+    contact_info: Mapped[str] = mapped_column(String(255), nullable=True)
+    security_question: Mapped[str] = mapped_column(String(255), nullable=True)
+    security_answer_hash: Mapped[str] = mapped_column(String(255), nullable=True)
 
     # Relationships
     doctor_notes: Mapped[list["DoctorNote"]] = relationship(
@@ -55,11 +55,12 @@ class User(Base):
     def check_password(self, password: str):
         return bcrypt.checkpw(password.encode(), self.password_hash.encode())
 
-    def __init__(self, username: str, password: str, role: str):
+    def __init__(self, username: str, password: str, role: str, full_name: str):
         super().__init__()
         self.username = username
         self.set_password(password)
         self.role = role
+        self.full_name = full_name
 
     def __repr__(self):
         return f"<User(username={self.username}, role={self.role})>"

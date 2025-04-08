@@ -18,7 +18,7 @@ engine = create_engine("sqlite:///hospital.db", echo=False)
 models.Base.metadata.create_all(bind=engine)
 Session = sessionmaker(bind=engine)
 session: Session = Session()
-dbManager = DatabaseManager(session)
+dbManager: DatabaseManager = DatabaseManager(session)
     
 def main():
     # Register Windows
@@ -27,14 +27,13 @@ def main():
     add_window("reset_password", frames.reset_password.ResetPassword)
     add_window("main", frames.main_menu.MainMenu)
 
-    # Open first window
+    # test user
+    # dbManager.create_user("adam", "tite", models.UserRole.ADMIN, "georg") # id = 1
+
+    # Open first window 
     switch_to_window('login')
 
-    # test user
-    user = models.User("admin", "tite", "admin")
-    session.add(user)
-    session.commit()
-
+    
 
 if __name__ == "__main__":
     main()
