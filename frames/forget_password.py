@@ -63,6 +63,3 @@ class ForgetPassword(tk.Frame):
         self.btn_next.grid(row=4, column=0, pady=10)
 
         frame.pack()
-        
-
-    

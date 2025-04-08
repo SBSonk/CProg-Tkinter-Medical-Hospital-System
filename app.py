@@ -2,6 +2,7 @@ import frames.forget_password
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 import frames
+import frames.landing
 import frames.login
 import frames.register
 import frames.main_menu
@@ -20,13 +21,13 @@ session = Session()
 def main():
     # Register Windows
     add_window("login", frames.login.Login, (session, None, lambda: switch_to_window('main')))
-    # add_window("register", register_window)
+    add_window("register", frames.register.Register, (session,))
     add_window("main", frames.main_menu.MainMenu)
+    add_window("landing", frames.landing.LandingFrame)
 
     # Open first window
-    switch_to_window('login')
+    switch_to_window('landing')
 
 
 if __name__ == "__main__":
     main()
-
