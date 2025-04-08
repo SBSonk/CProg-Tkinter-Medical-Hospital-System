@@ -19,25 +19,33 @@ class Login(tk.Frame):
     session: Session = None
 
     def login(self):
-        statement = Select(models.User).where(models.User.username == self.ent_username.get())
-        user: models.User = self.session.execute(statement).scalar_one_or_none()
-        
-        if not user:
-            print('User does not exist.')
-            return
-        
-        if user.check_password(self.ent_password.get()):
-            print('Logged in successfully.')
-            if callable(self.login_success):
-                self.login_success()
-        else:
-            print('Incorrect password.')
+        try:
+            statement = Select(models.User).where(models.User.username == self.ent_username.get())
+            user: models.User = self.session.execute(statement).scalar_one_or_none()
+            
+            if not user:
+                print('User does not exist.')
+                if callable(self.login_fail):
+                    self.login_fail()
+            
+            if user.check_password(self.ent_password.get()):
+                print('Logged in successfully.')
+                if callable(self.login_success):
+                    self.login_success()
+            else:
+                print('Incorrect password.')
+                if callable(self.login_fail):
+                    self.login_fail()
+        except Exception as e:
+            print(f'Database error: {e}')
             if callable(self.login_fail):
                 self.login_fail()
 
     def __init__(self, master, session: Session, login_success = None, login_fail = None):
         super().__init__(master)
         self.session = session
+        self.login_success = login_success
+        self.login_fail = login_fail
 
         frame = tk.Frame(self, width=384, height=540)
         frame.grid_rowconfigure(0)
