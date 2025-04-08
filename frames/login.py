@@ -19,16 +19,30 @@ class Login(tk.Frame):
     session: Session = None
 
     def login(self):
+        # validate entries
+        if not self.ent_username or not self.ent_password:
+            print('Entry widgets not initialized.')
+            return
+        
+        username = self.ent_username.get()
+        password = self.ent_password.get()
+
+        # Validate input
+        if not username or not password:
+            print('Empty fields.')
+            return
+
         try:
-            statement = Select(models.User).where(models.User.username == self.ent_username.get())
+            statement = Select(models.User).where(models.User.username == username)
             user: models.User = self.session.execute(statement).scalar_one_or_none()
             
             if not user:
                 print('User does not exist.')
                 if callable(self.login_fail):
                     self.login_fail()
+                    return
             
-            if user.check_password(self.ent_password.get()):
+            if user.check_password(password):
                 print('Logged in successfully.')
                 if callable(self.login_success):
                     self.login_success()
@@ -75,7 +89,7 @@ class Login(tk.Frame):
 
         HyperlinkLabel(frame, 
                        text='Forgot Password?', 
-                       on_click=lambda x: switch_to_window('register'),
+                       on_click=lambda x: switch_to_window('forget_password'),
                        default_color='gray',
                        hover_color='black').grid(row=3, column=0, pady=0, sticky='w')
 
