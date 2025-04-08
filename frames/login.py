@@ -43,6 +43,7 @@ class Login(tk.Frame):
             
             if user.check_password(password):
                 print('Logged in successfully.')
+                switch_to_window("main_menu")
                 if callable(self.login_success):
                     self.login_success()
             else:
