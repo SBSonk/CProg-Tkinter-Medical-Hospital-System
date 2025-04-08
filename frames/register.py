@@ -23,7 +23,7 @@ class Register(tk.Frame):
     def on_role_select(self, event):
         selected_role = self.cmb_role.get()
         
-        if selected_role == 'patient':
+        if selected_role == 'PATIENT':
             self.enable_patient_form()
         else:
             self.disable_patient_form()
@@ -86,11 +86,9 @@ class Register(tk.Frame):
 
             # Success message
             showinfo("Alert", "User and Patient creation successful.")
-            switch_to_window('main_menu')
+            switch_to_window('main_menu', onCreateArgs=(new_user,))
         except Exception as e:
-            showinfo("Alert", "User and Patient creation failed.")
-            print(e)
-
+            print(f'Account creation error: {e}')
 
 
     def __init__(self, master, session: Session):

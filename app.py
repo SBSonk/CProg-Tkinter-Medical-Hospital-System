@@ -23,13 +23,13 @@ dbManager: DatabaseManager = DatabaseManager(session)
 current_user = {"user": None}  # Holds the logged-in user
 
 def main():
-    add_window("login", frames.login.Login, (session, current_user, lambda: switch_to_window("main")))
+    add_window("login", frames.login.Login, (session, current_user))
     add_window("forget_password", frames.forget_password.ForgetPassword, (dbManager,))
     add_window("reset_password", frames.reset_password.ResetPassword)
     add_window("register", frames.register.Register, (session,))
-    add_window("main_menu", frames.main_menu.MainMenu, (current_user,))
-    add_window("appointment_patient", frames.appointment_patient.AppointmentPatient, (session, current_user))
-    add_window("appointment_nurse", frames.appointment_nurse.AppointmentNurse, (session,))
+    add_window("main_menu", frames.main_menu.MainMenu, (session, ))
+    add_window("appointment_patient", frames.appointment_patient.AppointmentPatient)
+    add_window("appointment_nurse", frames.appointment_nurse.AppointmentNurse)
     add_window("landing", frames.landing.LandingFrame)
 
     switch_to_window("landing")

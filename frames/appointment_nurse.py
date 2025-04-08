@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from sqlalchemy.orm import Session
-from models import Appointment, User
+from models import Appointment, User, UserRole
 from datetime import datetime
 from window_manager import switch_to_window
 
@@ -51,14 +51,14 @@ class AppointmentNurse(tk.Frame):
         for row in self.appointments_tree.get_children():
             self.appointments_tree.delete(row)
 
-        if self.current_user.user_type == "nurse":
+        if self.current_user.role == UserRole.NURSE:
             appointments = self.session.query(Appointment).all()
         else:
-            appointments = self.session.query(Appointment).filter_by(patient_id=self.current_user.id).all()
+            appointments = self.session.query(Appointment).filter_by(patient_id=self.current_user.uuid).all()
 
         for appt in appointments:
-            patient_name = self.session.query(User).filter_by(id=appt.patient_id).first().username
-            self.appointments_tree.insert("", "end", values=(appt.id, appt.scheduled_time.strftime("%Y-%m-%d %H:%M"), appt.reason, patient_name))
+            patient = self.session.query(User).filter_by(id=appt.patient_id).first()
+            self.appointments_tree.insert("", "end", values=(patient.uuid, appt.scheduled_time.strftime("%Y-%m-%d %H:%M"), appt.reason, patient.full_name))
 
     def schedule_appointment(self):
         reason = self.reason_entry.get()
@@ -71,10 +71,10 @@ class AppointmentNurse(tk.Frame):
             return
 
         new_appointment = Appointment(
-            patient_id=self.current_user.id,
+            patient_id=self.current_user.uuid,
             scheduled_time=scheduled_time,
             reason=reason,
-            created_by_id=self.current_user.id,
+            created_by_id=self.current_user.uuid,
         )
 
         self.session.add(new_appointment)
@@ -99,7 +99,7 @@ class AppointmentNurse(tk.Frame):
             return
 
         appt = self.session.query(Appointment).filter_by(id=appt_id).first()
-        if self.current_user.user_type != "nurse" and appt.patient_id != self.current_user.id:
+        if self.current_user.role != UserRole.NURSE and appt.patient_id != self.current_user.uuid:
             messagebox.showerror("Unauthorized", "You can only reschedule your own appointments")
             return
 
@@ -116,7 +116,7 @@ class AppointmentNurse(tk.Frame):
         appt_id = self.appointments_tree.item(selected)['values'][0]
         appt = self.session.query(Appointment).filter_by(id=appt_id).first()
 
-        if self.current_user.user_type != "nurse" and appt.patient_id != self.current_user.id:
+        if self.current_user.user_type != "nurse" and appt.patient_id != self.current_user.uuid:
             messagebox.showerror("Unauthorized", "You can only cancel your own appointments")
             return
 

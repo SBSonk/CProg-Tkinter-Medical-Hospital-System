@@ -1,12 +1,14 @@
 import tkinter as tk
 from tkinter import ttk
+from sqlalchemy.orm import Session
 from window_manager import switch_to_window
 import models
 
 class MainMenu(tk.Frame):
-    def __init__(self, master, current_user):
+    def __init__(self, master, session: Session, current_user: models.User):
         super().__init__(master)
-        self.current_user = current_user["user"]
+        self.session = session
+        self.current_user = current_user
 
         frame = tk.Frame(self, width=384, height=540)
         frame.grid_rowconfigure(0)
@@ -25,7 +27,8 @@ class MainMenu(tk.Frame):
         frame.pack()
 
     def goto_appointments(self):
+        print(self.current_user)
         if self.current_user.role == models.UserRole.PATIENT:
-            switch_to_window("patient_appointments")
+            switch_to_window("appointment_patient", onCreateArgs=(self.session, self.current_user))
         elif self.current_user.role == models.UserRole.NURSE:
-            switch_to_window("nurse_appointments")
+            switch_to_window("appointment_nurse", onCreateArgs=(self.session, self.current_user))
