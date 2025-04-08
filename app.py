@@ -38,7 +38,7 @@ def main():
     add_window("register", register_window)
     # add_window("main", main_window)
 
-    switch_to_window("register")
+    switch_to_window("ragister")
 
 
 if __name__ == "__main__":
