@@ -1,17 +1,17 @@
 import frames.forget_password
 import frames.reset_password
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, sessionmaker
-import frames
 import frames.login
+import frames.landing
 import frames.register
 import frames.main_menu
-import fractions
+import frames.appointment_nurse
+import frames.appointment_patient
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, Session
 import models
 import tkinter as tk
-from tkinter import ttk
 from window_manager import add_window, switch_to_window
-import enum
 from database import DatabaseManager
 
 engine = create_engine("sqlite:///hospital.db", echo=False)
@@ -19,22 +19,20 @@ models.Base.metadata.create_all(bind=engine)
 Session = sessionmaker(bind=engine)
 session: Session = Session()
 dbManager: DatabaseManager = DatabaseManager(session)
-    
+
+current_user = {"user": None}  # Holds the logged-in user
+
 def main():
-    # Register Windows
-    add_window("login", frames.login.Login, (session, None, lambda: switch_to_window('main')))
+    add_window("login", frames.login.Login, (session, current_user, lambda: switch_to_window("main")))
     add_window("forget_password", frames.forget_password.ForgetPassword, (dbManager,))
     add_window("reset_password", frames.reset_password.ResetPassword)
-    add_window("main", frames.main_menu.MainMenu)
+    add_window("register", frames.register.Register, (session,))
+    add_window("main", frames.main_menu.MainMenu, (current_user,))
+    add_window("appointment_patient", frames.appointment_patient.AppointmentPatient, (session, current_user))
+    add_window("appointment_nurse", frames.appointment_nurse.AppointmentNurse, (session,))
+    add_window("landing", frames.landing.LandingFrame)
 
-    # test user
-    # dbManager.create_user("adam", "tite", models.UserRole.ADMIN, "georg") # id = 1
-
-    # Open first window 
-    switch_to_window('login')
-
-    
+    switch_to_window("landing")
 
 if __name__ == "__main__":
     main()
-
