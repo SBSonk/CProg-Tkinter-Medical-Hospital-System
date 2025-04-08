@@ -12,11 +12,13 @@ import tkinter as tk
 from tkinter import ttk
 from window_manager import add_window, switch_to_window
 import enum
+from database import DatabaseManager
 
 engine = create_engine("sqlite:///hospital.db", echo=False)
 models.Base.metadata.create_all(bind=engine)
 Session = sessionmaker(bind=engine)
 session: Session = Session()
+dbManager = DatabaseManager(session)
     
 def main():
     # Register Windows
