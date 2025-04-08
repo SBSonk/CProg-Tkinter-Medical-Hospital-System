@@ -24,6 +24,13 @@ class MainMenu(tk.Frame):
         )
         appointment_button.grid(row=1, column=0, sticky="w")
 
+        maintenance_button = ttk.Button(
+            frame,
+            text="Record Maintenance",
+            command=self.goto_maintenance
+        )
+        maintenance_button.grid(row=1, column=0, sticky="w")
+
         frame.pack()
 
     def goto_appointments(self):
@@ -32,3 +39,9 @@ class MainMenu(tk.Frame):
             switch_to_window("appointment_patient", onCreateArgs=(self.session, self.current_user))
         elif self.current_user.role == models.UserRole.NURSE:
             switch_to_window("appointment_nurse", onCreateArgs=(self.session, self.current_user))
+
+    def goto_maintenance(self):
+        print(self.current_user)
+        if self.current_user.role == models.UserRole.ADMIN:
+            switch_to_window("record_maintenance_menu", onCreateArgs=(self.session, self.current_user))
+            

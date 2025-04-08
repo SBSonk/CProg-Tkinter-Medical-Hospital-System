@@ -57,7 +57,7 @@ class AppointmentNurse(tk.Frame):
             appointments = self.session.query(Appointment).filter_by(patient_id=self.current_user.uuid).all()
 
         for appt in appointments:
-            patient = self.session.query(User).filter_by(id=appt.patient_id).first()
+            patient = self.session.query(User).filter_by(uuid=appt.patient_id).first()
             self.appointments_tree.insert("", "end", values=(patient.uuid, appt.scheduled_time.strftime("%Y-%m-%d %H:%M"), appt.reason, patient.full_name))
 
     def schedule_appointment(self):

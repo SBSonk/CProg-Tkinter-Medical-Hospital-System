@@ -6,6 +6,9 @@ import frames.register
 import frames.main_menu
 import frames.appointment_nurse
 import frames.appointment_patient
+import frames.record_maintenance_menu
+import frames.user_account_module
+import frames.patient_info_module
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
@@ -31,6 +34,9 @@ def main():
     add_window("appointment_patient", frames.appointment_patient.AppointmentPatient)
     add_window("appointment_nurse", frames.appointment_nurse.AppointmentNurse)
     add_window("landing", frames.landing.LandingFrame)
+    add_window("record_maintenance_menu", frames.record_maintenance_menu.RecordMaintenanceMenu)
+    add_window("user_account_module", frames.user_account_module.UserAccountModule)
+    add_window("patient_info_module", frames.patient_info_module.PatientInfoModule)
 
     switch_to_window("landing")
 
