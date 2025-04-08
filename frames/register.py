@@ -86,6 +86,7 @@ class Register(tk.Frame):
 
             # Success message
             showinfo("Alert", "User and Patient creation successful.")
+            switch_to_window('main_menu')
         except Exception as e:
             showinfo("Alert", "User and Patient creation failed.")
             print(e)
