@@ -26,7 +26,7 @@ class PlaceholderEntry(ttk.Entry):
             if self.is_password:
                 self.configure(show="")
 
-    def get(self):
+    def get_text(self):
         text = super().get()
         
         if text == self.placeholder_text:

@@ -8,8 +8,8 @@ from custom_widgets import PlaceholderEntry, HyperlinkLabel
 from window_manager import switch_to_window
 
 class Login(tk.Frame):
-    ent_username: tk.Entry = None
-    ent_password: tk.Entry = None
+    ent_username: PlaceholderEntry = None
+    ent_password: PlaceholderEntry = None
     btn_login: tk.Button = None
 
     login_success = None
@@ -23,8 +23,8 @@ class Login(tk.Frame):
             print('Entry widgets not initialized.')
             return
         
-        username = self.ent_username.get()
-        password = self.ent_password.get()
+        username = self.ent_username.get_text()
+        password = self.ent_password.get_text()
 
         # Validate input
         if not username or not password:

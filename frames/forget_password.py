@@ -9,13 +9,13 @@ from window_manager import switch_to_window
 from database import DatabaseManager
 
 class ForgetPassword(tk.Frame):
-    ent_username: tk.Entry = None
+    ent_username: PlaceholderEntry = None
     btn_next: tk.Button = None
     dbManager: DatabaseManager = None
 
     def submitUsername(self):
         try:
-            user = self.dbManager.get_user_by_username(self.ent_username.get())
+            user = self.dbManager.get_user_by_username(self.ent_username.get_text())
 
             if user:
                 switch_to_window('reset_password', onCreateArgs=(user,))

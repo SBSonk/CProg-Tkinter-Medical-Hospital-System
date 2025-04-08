@@ -7,8 +7,8 @@ from custom_widgets import PlaceholderEntry, HyperlinkLabel
 from window_manager import switch_to_window
 
 class Register(tk.Frame):
-    ent_username: tk.Entry = None
-    ent_password: tk.Entry = None
+    ent_username: PlaceholderEntry = None
+    ent_password: PlaceholderEntry = None
     btn_login: tk.Button = None
 
     session = None
@@ -17,7 +17,7 @@ class Register(tk.Frame):
         # todo: validate contents
 
         new_user = models.User(
-            username=self.ent_username.get(), password=self.ent_password.get()
+            username=self.ent_username.get_text(), password=self.ent_password.get_text()
         )
 
         print(new_user)
