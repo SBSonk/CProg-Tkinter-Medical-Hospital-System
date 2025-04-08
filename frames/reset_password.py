@@ -7,24 +7,15 @@ from tkinter.messagebox import showinfo
 from custom_widgets import PlaceholderEntry, HyperlinkLabel
 from window_manager import switch_to_window
 
-class ForgetPassword(tk.Frame):
-    ent_email: tk.Entry = None
+class ResetPassword(tk.Frame):
+    ent_password: tk.Entry = None
+    ent_password_confirm: tk.Entry = None
     btn_next: tk.Button = None
 
-    def submitUsername(self):
-        pass
-        # Get user
+    user_to_edit = None
 
-        # If true go to
-        try:
-            user = None
-
-            if user:
-                switch_to_window('reset_password').userToEdit = user
-            else:
-                print('User does not exist.')
-        except Exception as e:
-            print(f"Database Error: {e}")
+    def submitPassword(self):
+        print(self.user_to_edit)
 
     def __init__(self, master):
         super().__init__(master)
@@ -35,22 +26,28 @@ class ForgetPassword(tk.Frame):
         frame.grid_rowconfigure(2, pad=20)
         ttk.Label(frame, text='Reset Password', font=('Arial', 24)).grid(row=0, column=0, sticky='w', pady=10)
         
-        self.ent_email = PlaceholderEntry(frame, 
+        self.ent_password = PlaceholderEntry(frame, 
                                              is_password=False, 
                                              normal_font=('Arial', 16), 
                                              placeholder_font=('Arial', 16), 
-                                             placeholder_text='Email', 
+                                             placeholder_text='Enter Password', 
                                              placeholder_color='#bfbfbf', 
                                              text_color='black')
-        self.ent_email.grid(row=1, column=0, ipady=7.5)
+        self.ent_password.grid(row=1, column=0, ipady=7.5)
 
-        HyperlinkLabel(frame, 
-                       text='Return to login', 
-                       on_click=lambda x: switch_to_window('login'),
-                       default_color='gray',
-                       hover_color='black').grid(row=3, column=0, pady=0, sticky='w')
+        self.ent_password_confirm = PlaceholderEntry(frame, 
+                                             is_password=False, 
+                                             normal_font=('Arial', 16), 
+                                             placeholder_font=('Arial', 16), 
+                                             placeholder_text='Confirm Password', 
+                                             placeholder_color='#bfbfbf', 
+                                             text_color='black')
+        self.ent_password_confirm.grid(row=2, column=0, ipady=7.5)
 
         self.btn_next = ttk.Button(frame, text='Next', padding=(87.5, 12.5))
         self.btn_next.grid(row=4, column=0, pady=10)
 
         frame.pack()
+        
+
+    
