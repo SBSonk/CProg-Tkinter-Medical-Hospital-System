@@ -4,9 +4,9 @@ windows = {}
 activeWindow = None
 
 # use this to add a window that can be switched to
-def add_window(window_name, frame: tk.Frame, variables: tuple = ()):
+def add_window(window_name, frame: tk.Frame, init_args: tuple = ()):
     windows[window_name] = frame
-    windows[window_name + "_args"] = variables
+    windows[window_name + "_args"] = init_args
 
 # switches to window
 def switch_to_window(window_name, callback=None): 
