@@ -22,6 +22,7 @@ class PlaceholderEntry(ttk.Entry):
 
             if self.is_password:
                 self.configure(show="*")
+                
     def focus_out(self, event):
         if self.disabled:
             return
@@ -42,6 +43,7 @@ class PlaceholderEntry(ttk.Entry):
 
     def set_disabled(self, val):
         self.disabled = val
+        self.configure(foreground=self.placeholder_color)
         if val:
             self.delete(0, 'end')
             self.insert(0, 'Disabled')
@@ -52,7 +54,6 @@ class PlaceholderEntry(ttk.Entry):
             
             self.delete(0, 'end')
             self.insert(0, self.placeholder_text)
-            self.configure(foreground=self.placeholder_color)
             
             if self.is_password:
                 self.configure(show="")

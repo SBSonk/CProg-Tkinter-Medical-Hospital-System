@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox
 import models
 from sqlalchemy.orm import Session
 from tkinter import ttk
@@ -9,12 +10,12 @@ from window_manager import switch_to_window
 entry_font = ("Arial", 12)
     
 class Register(tk.Frame):
-    def disablePatientForm(self):
+    def disable_patient_form(self):
         for ent in self.patient_form_elements:
                 if isinstance(ent, PlaceholderEntry):       
                     ent.set_disabled(True)
     
-    def enablePatientForm(self):
+    def enable_patient_form(self):
         for ent in self.patient_form_elements:
                 if isinstance(ent, PlaceholderEntry):       
                     ent.set_disabled(False)      
@@ -23,41 +24,73 @@ class Register(tk.Frame):
         selected_role = self.cmb_role.get()
         
         if selected_role == 'patient':
-            self.enablePatientForm()
+            self.enable_patient_form()
         else:
-            self.disablePatientForm()
-        
-        match selected_role:
-            case 'admin':
-                pass
-            
-            case 'doctor':
-                pass
-            
-            case 'nurse':
-                pass
-            
-            case 'patient':
-                pass
+            self.disable_patient_form()
 
     def register_account(self):
-        # todo: validate contents
+        # Validate contents
+        username = self.ent_username.get_text().strip()
+        password = self.ent_password.get_text().strip()
+        full_name = self.ent_name.get_text().strip()
+        contact_info = self.ent_contact.get_text().strip()
+        age = self.ent_age.get()
+        gender = self.gender_var.get()
+        role: str = self.cmb_role.get()
+        treatments = self.ent_treatments.get().strip()  # Add `.strip()` to clean up input
+        allergies = self.ent_allergies.get().strip()    # Add `.strip()` to clean up input
+        diseases = self.ent_diseases.get().strip()      # Add `.strip()` to clean up input
 
+        # Validation checks
+        if not username or not password or not full_name:
+            showinfo("Alert", 'Missing required fields.')
+            return
+
+        if len(password) < 6:  # Enforce password length
+            showinfo("Alert", "Password must be at least 6 characters long.")
+            return
+
+        # Check if the username already exists in the database
+        existing_user = self.session.query(models.User).filter(models.User.username == username).first()
+        if existing_user:
+            showinfo("Alert", "Username already exists. Please choose a different username.")
+            return
+
+        # Create the new user object
         new_user = models.User(
-            username=self.ent_username.get_text(), password=self.ent_password.get_text()
+            username=username,
+            password=password,
+            role=models.UserRole(role.upper()),
+            full_name=full_name,
+            age=int(age),
+            gender=gender,
+            contact_info=contact_info
         )
 
-        print(new_user)
-
+        # Attempt to save the user to the database
         try:
             self.session.add(new_user)
             self.session.commit()
-            print("User creation success.")
-            showinfo("Alert", "User successfully created!")
+
+            # Now create the Patient record using the user_id (foreign key)
+            new_patient = models.Patient(
+                user_id=new_user.uuid,  # Link Patient to the newly created User
+                treatments=treatments,
+                allergies=allergies,
+                diseases=diseases
+            )
+            
+            # Add the Patient to the session
+            self.session.add(new_patient)
+            self.session.commit()
+
+            # Success message
+            showinfo("Alert", "User and Patient creation successful.")
         except Exception as e:
-            print("User creation failed.")
+            showinfo("Alert", "User and Patient creation failed.")
             print(e)
-            showinfo("Alert", "User successfully failed!")
+
+
 
     def __init__(self, master, session: Session):
         super().__init__(master)
@@ -88,7 +121,6 @@ class Register(tk.Frame):
 
         self.ent_username = PlaceholderEntry(
             frame,
-            is_password=False,
             normal_font=entry_font,
             placeholder_font=entry_font,
             placeholder_text="Username",
@@ -115,7 +147,6 @@ class Register(tk.Frame):
 
         self.ent_name = PlaceholderEntry(
             frame,
-            is_password=False,
             normal_font=entry_font,
             placeholder_font=entry_font,
             placeholder_text="Name",
@@ -148,7 +179,6 @@ class Register(tk.Frame):
 
         self.ent_contact = PlaceholderEntry(
             frame,
-            is_password=True,
             normal_font=entry_font,
             placeholder_font=entry_font,
             placeholder_text="Contact No.",
@@ -199,7 +229,7 @@ class Register(tk.Frame):
         
         patient_form_elements.append(self.ent_treatments)
         self.patient_form_elements = patient_form_elements
-        self.disablePatientForm()
+        self.disable_patient_form()
 
         self.btn_register = ttk.Button(
             frame,
