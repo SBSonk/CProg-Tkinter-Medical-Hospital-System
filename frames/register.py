@@ -6,7 +6,6 @@ from tkinter.messagebox import showinfo
 from custom_widgets import PlaceholderEntry, HyperlinkLabel
 from window_manager import switch_to_window
 
-
 class Register(tk.Frame):
     ent_username: tk.Entry = None
     ent_password: tk.Entry = None

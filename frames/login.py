@@ -7,7 +7,6 @@ from tkinter.messagebox import showinfo
 from custom_widgets import PlaceholderEntry, HyperlinkLabel
 from window_manager import switch_to_window
 
-
 class Login(tk.Frame):
     ent_username: tk.Entry = None
     ent_password: tk.Entry = None
@@ -96,7 +95,7 @@ class Login(tk.Frame):
         self.btn_login = ttk.Button(frame, text='Login', padding=(87.5, 12.5), command=self.login)
         self.btn_login.grid(row=4, column=0, pady=10)
 
-        frame.pack()
+        frame.pack(padx=15, pady=15)
         
 
     

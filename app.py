@@ -23,7 +23,7 @@ dbManager: DatabaseManager = DatabaseManager(session)
 def main():
     # Register Windows
     add_window("login", frames.login.Login, (session, None, lambda: switch_to_window('main')))
-    add_window("forget_password", frames.forget_password.ForgetPassword)
+    add_window("forget_password", frames.forget_password.ForgetPassword, (dbManager,))
     add_window("reset_password", frames.reset_password.ResetPassword)
     add_window("main", frames.main_menu.MainMenu)
 
