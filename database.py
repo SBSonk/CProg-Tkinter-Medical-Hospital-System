@@ -11,9 +11,12 @@ class DatabaseManager:
 
     def get_all_users(self) -> list[User]:
         return self.session.query(User).all()
+    
+    def get_user_by_username(self, username: str) -> User:
+        return self.session.query(User).filter_by(username=username).first()
 
-    def create_user(self, username: str, password: str, role: str, **kwargs) -> User:
-        user = User(username=username, password=password, role=role)
+    def create_user(self, username: str, password: str, role: str, full_name: str, **kwargs) -> User:
+        user = User(username=username, password=password, role=role, full_name=full_name)
         for key, value in kwargs.items():
             setattr(user, key, value)
         self.session.add(user)
