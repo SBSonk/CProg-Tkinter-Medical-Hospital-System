@@ -9,7 +9,7 @@ def add_window(window_name, frame: tk.Frame, variables: tuple = ()):
     windows[window_name + "_args"] = variables
 
 # switches to window
-def switch_to_window(window_name) -> tk.Frame: 
+def switch_to_window(window_name, callback=None): 
     global activeWindow
 
     if activeWindow is not None:
@@ -22,6 +22,9 @@ def switch_to_window(window_name) -> tk.Frame:
     frame: tk.Frame = windows[window_name](*args)
 
     frame.grid(row=0, column=0)
+    
+    if callback:
+        callback(frame)
     root.mainloop()
 
-    return frame
+    
