@@ -18,5 +18,6 @@ class MainMenu(tk.Frame):
         frame.grid_rowconfigure(1, pad=20)
         frame.grid_rowconfigure(2, pad=20)
         ttk.Label(frame, text='Main Menu', font=('Arial', 24)).grid(row=0, column=0, sticky='w', pady=10)
+        
 
         frame.pack()
