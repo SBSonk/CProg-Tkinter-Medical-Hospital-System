@@ -26,6 +26,13 @@ class PlaceholderEntry(ttk.Entry):
             if self.is_password:
                 self.configure(show="")
 
+    def get(self):
+        text = super().get()
+        
+        if text == self.placeholder_text:
+            text = ""
+        return text
+
 
     def __init__(self, master = None, normal_font=('Arial', 12), text_color='black', placeholder_font=('Arial', 12), placeholder_color='gray', placeholder_text="", is_password = False, width=20):
         super().__init__(master, font=normal_font, foreground=text_color, width=width)

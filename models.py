@@ -55,10 +55,11 @@ class User(Base):
     def check_password(self, password: str):
         return bcrypt.checkpw(password.encode(), self.password_hash.encode())
 
-    def __init__(self, username: str, password: str):
+    def __init__(self, username: str, password: str, role: str):
         super().__init__()
         self.username = username
         self.set_password(password)
+        self.role = role
 
     def __repr__(self):
         return f"<User(username={self.username}, role={self.role})>"

@@ -19,25 +19,47 @@ class Login(tk.Frame):
     session: Session = None
 
     def login(self):
-        statement = Select(models.User).where(models.User.username == self.ent_username.get())
-        user: models.User = self.session.execute(statement).scalar_one_or_none()
-        
-        if not user:
-            print('User does not exist.')
+        # validate entries
+        if not self.ent_username or not self.ent_password:
+            print('Entry widgets not initialized.')
             return
         
-        if user.check_password(self.ent_password.get()):
-            print('Logged in successfully.')
-            if callable(self.login_success):
-                self.login_success()
-        else:
-            print('Incorrect password.')
+        username = self.ent_username.get()
+        password = self.ent_password.get()
+
+        # Validate input
+        if not username or not password:
+            print('Empty fields.')
+            return
+
+        try:
+            statement = Select(models.User).where(models.User.username == username)
+            user: models.User = self.session.execute(statement).scalar_one_or_none()
+            
+            if not user:
+                print('User does not exist.')
+                if callable(self.login_fail):
+                    self.login_fail()
+                    return
+            
+            if user.check_password(password):
+                print('Logged in successfully.')
+                if callable(self.login_success):
+                    self.login_success()
+            else:
+                print('Incorrect password.')
+                if callable(self.login_fail):
+                    self.login_fail()
+        except Exception as e:
+            print(f'Database error: {e}')
             if callable(self.login_fail):
                 self.login_fail()
 
     def __init__(self, master, session: Session, login_success = None, login_fail = None):
         super().__init__(master)
         self.session = session
+        self.login_success = login_success
+        self.login_fail = login_fail
 
         frame = tk.Frame(self, width=384, height=540)
         frame.grid_rowconfigure(0)
@@ -67,7 +89,7 @@ class Login(tk.Frame):
 
         HyperlinkLabel(frame, 
                        text='Forgot Password?', 
-                       on_click=lambda x: switch_to_window('register'),
+                       on_click=lambda x: switch_to_window('forget_password'),
                        default_color='gray',
                        hover_color='black').grid(row=3, column=0, pady=0, sticky='w')
 

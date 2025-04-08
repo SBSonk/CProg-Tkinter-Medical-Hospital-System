@@ -1,3 +1,5 @@
+import frames.forget_password
+import frames.reset_password
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 import frames
@@ -11,37 +13,27 @@ from tkinter import ttk
 from window_manager import add_window, switch_to_window
 import enum
 
-engine = create_engine("sqlite:///hospital.db", echo=True)
+engine = create_engine("sqlite:///hospital.db", echo=False)
 models.Base.metadata.create_all(bind=engine)
 Session = sessionmaker(bind=engine)
-session = Session()
-
-root = tk.Tk()
-# root.geometry('640x480') # full window size
-# root.geometry("350x432")  # login size
-root.pack_propagate(0)
-root.resizable(0, 0)
-
-def TestWindow(window):
-    root = tk.Tk()
-    window(root).pack()
-    
-    root.mainloop()
+session: Session = Session()
     
 def main():
-    # todo: rerun at home
-    # login_window = frames.login.Login(root, session, lambda: switch_to_window("main"))
-    register_window = frames.register.Register(root, session)
-    # main_window = frames.main_menu.MainMenu(root)
+    # Register Windows
+    add_window("login", frames.login.Login, (session, None, lambda: switch_to_window('main')))
+    add_window("forget_password", frames.forget_password.ForgetPassword)
+    add_window("reset_password", frames.reset_password.ResetPassword)
+    add_window("main", frames.main_menu.MainMenu)
 
-    # add_window("login", login_window)
-    add_window("register", register_window)
-    # add_window("main", main_window)
+    # Open first window
+    switch_to_window('login')
 
-    switch_to_window("register")
+    # test user
+    user = models.User("admin", "tite", "admin")
+    session.add(user)
+    session.commit()
 
 
 if __name__ == "__main__":
     main()
-    root.mainloop()
 
