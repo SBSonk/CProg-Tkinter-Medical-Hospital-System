@@ -95,7 +95,10 @@ class Login(tk.Frame):
         self.btn_login = ttk.Button(frame, text='Login', padding=(87.5, 12.5), command=self.login)
         self.btn_login.grid(row=4, column=0, pady=10)
 
+        back_button = ttk.Button(frame, text="Back", command=self.go_back)
+        back_button.grid(row=5, column=0, pady=10, sticky='sw')
+
         frame.pack(padx=15, pady=15)
         
-
-    
+    def go_back(self):
+        switch_to_window('landing')
