@@ -1,4 +1,5 @@
 import tkinter as ttk
+from sqlalchemy.orm import Session
 from models import User, MedicalHistory
 
 class PatientProfile:
