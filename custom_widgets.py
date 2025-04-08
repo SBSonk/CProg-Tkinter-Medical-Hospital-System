@@ -67,7 +67,7 @@ class PlaceholderEntry(ttk.Entry):
         self.placeholder_font = placeholder_font
         self.normal_font = normal_font
         self.is_password = is_password
-
+        
         self.bind('<FocusIn>', self.focus_in)
         self.bind('<FocusOut>', self.focus_out)
 
