@@ -6,6 +6,7 @@ from tkinter import ttk
 from tkinter.messagebox import showinfo
 from custom_widgets import PlaceholderEntry, HyperlinkLabel
 from window_manager import switch_to_window
+from tkinter.messagebox import showinfo
 
 class Login(tk.Frame):
     ent_username: PlaceholderEntry = None
@@ -20,7 +21,7 @@ class Login(tk.Frame):
     def login(self):
         # validate entries
         if not self.ent_username or not self.ent_password:
-            print('Entry widgets not initialized.')
+            showinfo('Alert', 'Entry widgets not initialized.')
             return
         
         username = self.ent_username.get_text()
@@ -28,7 +29,7 @@ class Login(tk.Frame):
 
         # Validate input
         if not username or not password:
-            print('Empty fields.')
+            showinfo('Alert', 'Empty fields.')
             return
 
         try:
@@ -36,22 +37,22 @@ class Login(tk.Frame):
             user: models.User = self.session.execute(statement).scalar_one_or_none()
             
             if not user:
-                print('User does not exist.')
+                showinfo('Alert', 'User does not exist.')
                 if callable(self.login_fail):
                     self.login_fail()
                     return
             
             if user.check_password(password):
-                print('Logged in successfully.')
-                switch_to_window("main_menu")
+                showinfo('Alert', 'Logged in successfully.')
+                switch_to_window("main_menu", onCreateArgs=(user,))
                 if callable(self.login_success):
                     self.login_success()
             else:
-                print('Incorrect password.')
+                showinfo('Alert', 'Incorrect password.')
                 if callable(self.login_fail):
                     self.login_fail()
         except Exception as e:
-            print(f'Database error: {e}')
+            print(f'Login error: {e}')
             if callable(self.login_fail):
                 self.login_fail()
 
