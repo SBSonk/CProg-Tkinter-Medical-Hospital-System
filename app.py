@@ -42,7 +42,7 @@ def main():
     add_window("doctors_notes", frames.doctors_notes.DoctorsNotes, (dbManager, session))
     add_window("landing", frames.landing.LandingFrame)
     add_window("record_maintenance_menu", frames.record_maintenance_menu.RecordMaintenanceMenu, (session, ))
-    add_window("user_account_module", frames.user_account_module.UserAccountModule)
+    add_window("user_account_module", frames.user_account_module.UserAccountModule, (session, ))
     add_window("patient_info_module", frames.patient_info_module.PatientInfoModule, (session, ))
 
     # create as nurse joy
