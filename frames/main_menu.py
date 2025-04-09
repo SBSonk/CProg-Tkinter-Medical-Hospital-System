@@ -3,6 +3,7 @@ from tkinter import ttk
 from sqlalchemy.orm import Session
 from window_manager import switch_to_window
 import models
+from models import UserRole
 
 class MainMenu(tk.Frame):
     def __init__(self, master, session: Session, current_user: models.User):
@@ -10,35 +11,52 @@ class MainMenu(tk.Frame):
         self.session = session
         self.current_user = current_user
 
-        frame = tk.Frame(self, width=384, height=540)
-        frame.grid_rowconfigure(0)
-        frame.grid_rowconfigure(1, pad=20)
-        frame.grid_rowconfigure(2, pad=20)
+        self.configure(width=400, height=540)
+        self.pack_propagate(0)
 
-        ttk.Label(frame, text='Main Menu', font=('Arial', 24)).grid(row=0, column=0, sticky='w', pady=10)
+        # Main container
+        container = ttk.Frame(self)
+        container.pack(fill="both", expand=True, padx=20, pady=20)
+
+        # Title label
+        title_label = ttk.Label(container, text="Main Menu", font=("Arial", 24, "bold"))
+        title_label.pack(pady=(0, 30), anchor="center")
+
+        # Button Frame
+        button_frame = ttk.Frame(container)
+        button_frame.pack(pady=10)
+
+        # Buttons with spacing
+        buttons = []
         
-        register_button = ttk.Button(
-            frame,
-            text="Register User",
-            command=self.goto_register
-        )
-        register_button.grid(row=1, column=0, sticky="w")
+        match current_user.role:
+            case UserRole.ADMIN:
+                buttons.append(("User Management", self.goto_register)) # MOVE TO User MANAGEMENT
+                buttons.append(("Patient Management", self.goto_maintenance))
+                buttons.append(("Appointment System", self.goto_appointments))
+                buttons.append(("Doctor's Notes", self.goto_appointments)) # move to notes
+            case UserRole.DOCTOR: 
+                buttons.append(("Patient Management", self.goto_maintenance))
+                buttons.append(("Appointment System", self.goto_appointments))
+                buttons.append(("Doctor's Notes", self.goto_appointments)) # move to notes
+            case UserRole.NURSE:
+                buttons.append(("Patient Management", self.goto_maintenance))
+                buttons.append(("Appointment System", self.goto_appointments))
+                buttons.append(("Doctor's Notes", self.goto_appointments)) # move to notes
+            case UserRole.PATIENT:
+                buttons.append(("My Appointments", self.goto_appointments))
+                buttons.append(("Doctor's Notes", self.goto_appointments))
 
-        appointment_button = ttk.Button(
-            frame,
-            text="Appointment System",
-            command=self.goto_appointments
-        )
-        appointment_button.grid(row=2, column=0, sticky="w")
+        for text, command in buttons:
+            btn = ttk.Button(button_frame, text=text, command=command, padding=(87.5, 12.5))
+            btn.pack(fill="x", pady=8)
 
-        maintenance_button = ttk.Button(
-            frame,
-            text="Record Maintenance",
-            command=self.goto_maintenance
-        )
-        maintenance_button.grid(row=3, column=0, sticky="w")
+        # Spacer
+        ttk.Separator(container, orient="horizontal").pack(fill="x", pady=20)
 
-        frame.pack()
+        # Logout at bottom
+        logout_button = ttk.Button(container, text="Logout")
+        logout_button.pack(pady=(0, 10), anchor="e")
 
     def goto_appointments(self):
         print(self.current_user)
@@ -54,4 +72,5 @@ class MainMenu(tk.Frame):
 
     def goto_register(self):
         switch_to_window('register')
+        
             
