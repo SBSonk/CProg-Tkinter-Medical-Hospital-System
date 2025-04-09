@@ -9,9 +9,15 @@ class LandingFrame(tk.Frame):
 
         frame = tk.Frame(self)
         frame.pack(padx=15, pady=15)
-        
+
+        # Load and display the hospital logo
+        logo_image = tk.PhotoImage(file="icons/vcsl.png")  # Update path as necessary
+        logo_label = tk.Label(frame, image=logo_image)
+        logo_label.image = logo_image  # Keep a reference to the image to avoid garbage collection
+        logo_label.pack(pady=10)
+
         # Title
-        title_label = ttk.Label(frame, text="Welcome to the Medical & Hospital System", font=("Arial", 24))
+        title_label = ttk.Label(frame, text="Welcome to our website! Please login to proceed.", font=("Arial", 24))
         title_label.pack(pady=20)
 
         # Login Button
@@ -20,4 +26,3 @@ class LandingFrame(tk.Frame):
 
     def goto_login(self):
         switch_to_window('login')
-
