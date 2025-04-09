@@ -16,7 +16,7 @@ class PatientInfoModule(tk.Frame):
             self.tree.heading(col, text=col)
         self.tree.pack(pady=10)
 
-        ttk.Button(self, text="Back", command=lambda: switch_to_window("record_maintenance_menu", onCreateArgs=(session, current_user))).pack(pady=10)
+        ttk.Button(self, text="Back", command=lambda: switch_to_window("main_menu", onCreateArgs=(current_user,))).pack(pady=10)
 
         self.load_patients()
 

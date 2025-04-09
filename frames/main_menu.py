@@ -5,6 +5,7 @@ from window_manager import switch_to_window
 import models
 from models import UserRole
 
+
 class MainMenu(tk.Frame):
     def __init__(self, master, session: Session, current_user: models.User):
         super().__init__(master)
@@ -28,49 +29,88 @@ class MainMenu(tk.Frame):
 
         # Buttons with spacing
         buttons = []
-        
+
         match current_user.role:
             case UserRole.ADMIN:
-                buttons.append(("User Management", self.goto_register)) # MOVE TO User MANAGEMENT
-                buttons.append(("Patient Management", self.goto_maintenance))
+                buttons.append(("User Management", self.goto_user_management))
+                buttons.append(("Patient List", self.goto_patient_list))
                 buttons.append(("Appointment System", self.goto_appointments))
-                buttons.append(("Doctor's Notes", self.goto_appointments)) # move to notes
-            case UserRole.DOCTOR: 
-                buttons.append(("Patient Management", self.goto_maintenance))
+                buttons.append(("Doctor's Notes", self.goto_doctor_notes))  # Replace with actual note screen
+            case UserRole.DOCTOR:
+                buttons.append(("Patient List", self.goto_maintenance))
                 buttons.append(("Appointment System", self.goto_appointments))
-                buttons.append(("Doctor's Notes", self.goto_appointments)) # move to notes
+                buttons.append(("Doctor's Notes", self.goto_doctor_notes))
             case UserRole.NURSE:
-                buttons.append(("Patient Management", self.goto_maintenance))
+                buttons.append(("Patient List", self.goto_maintenance))
                 buttons.append(("Appointment System", self.goto_appointments))
-                buttons.append(("Doctor's Notes", self.goto_appointments)) # move to notes
+                buttons.append(("Doctor's Notes", self.goto_doctor_notes))
             case UserRole.PATIENT:
                 buttons.append(("My Appointments", self.goto_appointments))
-                buttons.append(("Doctor's Notes", self.goto_appointments))
+                buttons.append(("Doctor's Notes", self.goto_doctor_notes))
 
         for text, command in buttons:
             btn = ttk.Button(button_frame, text=text, command=command, padding=(87.5, 12.5))
             btn.pack(fill="x", pady=8)
 
-        # Spacer
+        # Divider
         ttk.Separator(container, orient="horizontal").pack(fill="x", pady=20)
 
-        # Logout at bottom
-        logout_button = ttk.Button(container, text="Logout")
-        logout_button.pack(pady=(0, 10), anchor="e")
+        # User info display
+        info_frame = ttk.Frame(container)
+        info_frame.pack(pady=10, fill="x")
+
+        ttk.Label(info_frame, text="Your Information", font=("Arial", 14, "bold")).pack(anchor="w", pady=(0, 5))
+
+        user_info = {
+            "Full Name": current_user.full_name or "N/A",
+            "Age": current_user.age if current_user.age is not None else "N/A",
+            "Gender": current_user.gender or "N/A",
+            "Contact Info": current_user.contact_info or "N/A"
+        }
+
+        ttk.Separator(container, orient="horizontal").pack(fill="x", pady=20)
+
+        for key, value in user_info.items():
+            line = f"{key}: {value}"
+            ttk.Label(info_frame, text=line, font=("Arial", 12)).pack(anchor="w", pady=2)
+
+        # Spacer to push logout button down
+        ttk.Frame(container).pack(expand=True)
+
+        # Logout button at bottom right
+        logout_button = ttk.Button(container, text="Logout", command=self.logout)
+        logout_button.pack(anchor="e", pady=(0, 10))
 
     def goto_appointments(self):
-        print(self.current_user)
         if self.current_user.role == models.UserRole.PATIENT:
             switch_to_window("appointment_patient", onCreateArgs=(self.session, self.current_user))
         elif self.current_user.role == models.UserRole.NURSE:
             switch_to_window("appointment_nurse", onCreateArgs=(self.session, self.current_user))
 
+    def goto_user_management(self):
+        switch_to_window("user_account_module", onCreateArgs=(self.session, self.current_user))
+
+    def goto_patient_list(self):
+        switch_to_window("patient_info_module", onCreateArgs=(self.session, self.current_user))
+        
+    def goto_doctor_notes(self):
+        switch_to_window("create_doctor_note", onCreateArgs=(self.session, self.current_user))
+
     def goto_maintenance(self):
-        print(self.current_user)
         if self.current_user.role == models.UserRole.ADMIN:
             switch_to_window("record_maintenance_menu", onCreateArgs=(self.session, self.current_user))
 
     def goto_register(self):
-        switch_to_window('register')
-        
-            
+        switch_to_window("register")
+
+    def logout(self):
+        switch_to_window("login")
+
+        # ttk.Button(self, text="User Accounts", width=30,
+        #            command=lambda: switch_to_window("user_account_module", onCreateArgs=(self.session, self.current_user))).pack(pady=5)
+
+        # ttk.Button(self, text="Patient Information List", width=30,
+        #            command=lambda: switch_to_window("patient_info_module", onCreateArgs=(self.session, self.current_user))).pack(pady=5)
+
+        # ttk.Button(self, text="Back to Main Menu", width=30,
+        #            command=lambda: switch_to_window("main_menu", onCreateArgs=(current_user,))).pack(pady=20)

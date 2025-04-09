@@ -21,7 +21,7 @@ class UserAccountModule(tk.Frame):
 
         ttk.Button(self, text="Edit User", command=self.edit_user).grid(row=2, column=0, pady=5)
         ttk.Button(self, text="Delete User", command=self.delete_user).grid(row=2, column=1, pady=5)
-        ttk.Button(self, text="Back", command=lambda: switch_to_window("record_maintenance_menu", onCreateArgs=(session, current_user))).grid(row=3, column=0, columnspan=2, pady=10)
+        ttk.Button(self, text="Back", command=lambda: switch_to_window("main_menu", onCreateArgs=(current_user,))).grid(row=3, column=0, columnspan=2, pady=10)
 
         self.load_users()
 
@@ -80,3 +80,6 @@ class UserAccountModule(tk.Frame):
             self.session.delete(user)
             self.session.commit()
             self.load_users()
+
+    def register(self):
+        switch_to_window("register")

@@ -106,9 +106,12 @@ class Register(tk.Frame):
 
         frame.grid_rowconfigure(3, pad=10)
         frame.grid_rowconfigure(5, pad=10)
+
+        register_button = ttk.Button(frame, text="Register New Uswe", command=self.register)
+        register_button.grid(row=0, column=0, pady=10, sticky='nw')
         
         back_button = ttk.Button(frame, text="Back", command=self.go_back)
-        back_button.grid(row=0, column=0, pady=10, sticky='nw')
+        back_button.grid(row=1, column=0, pady=10, sticky='nw')
 
         ttk.Label(frame, text="Create New User", font=("Arial", 24, 'bold')).grid(
             row=0, column=1, pady=10
