@@ -23,7 +23,7 @@ class AppointmentPatient(tk.Frame):
         self.appointment_tree.heading("Reason", text="Reason")
         self.appointment_tree.pack(fill="both", expand=True, padx=20, pady=10)
 
-        self.refresh_appointments()
+        self.LoadTable()
 
         button_frame = ttk.Frame(self)
         button_frame.pack(pady=10)
@@ -33,11 +33,15 @@ class AppointmentPatient(tk.Frame):
         ttk.Button(button_frame, text="Cancel Selected Appointment", command=self.cancel_appointment).grid(row=0, column=2, padx=5)
         ttk.Button(self, text="Back", command=lambda: switch_to_window("main_menu", onCreateArgs=(current_user,))).pack(pady=10)
 
-    def refresh_appointments(self):
+    def LoadTable(self):
         for item in self.appointment_tree.get_children():
             self.appointment_tree.delete(item)
-
+            
         appointments = self.session.query(Appointment).filter_by(patient_id=self.current_user.uuid).all()
+        
+        if self.current_user.role == UserRole.PATIENT:
+            appointments = filter(lambda n: n.patient_id == self.current_user.uuid, appointments)
+
         for appt in appointments:
             self.appointment_tree.insert("", "end", iid=appt.id, values=(appt.scheduled_time, appt.reason))
 
@@ -61,7 +65,7 @@ class AppointmentPatient(tk.Frame):
         appt_id = int(selected[0])
         self.session.query(Appointment).filter_by(id=appt_id).delete()
         self.session.commit()
-        self.refresh_appointments()
+        self.LoadTable()
         messagebox.showinfo("Success", "Appointment canceled.")
 
     def _open_appointment_window(self, title, appointment=None):
@@ -96,7 +100,7 @@ class AppointmentPatient(tk.Frame):
                     )
                     self.session.add(new_appt)
                 self.session.commit()
-                self.refresh_appointments()
+                self.LoadTable()
                 win.destroy()
                 messagebox.showinfo("Success", f"Appointment {'updated' if appointment else 'created'} successfully.")
             except Exception as e:

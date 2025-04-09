@@ -7,7 +7,7 @@ import frames.login
 import frames.landing
 import frames.register
 import frames.main_menu
-import frames.appointment_nurse
+import frames.appointments
 import frames.appointment_patient
 import frames.record_maintenance_menu
 import frames.user_account_module
@@ -38,13 +38,12 @@ def main():
     add_window("create_doctor_note", frames.create_doctor_note.CreateDoctorNote, (session, dbManager))
     
     add_window("main_menu", frames.main_menu.MainMenu, (session, ))
-    add_window("appointment_patient", frames.appointment_patient.AppointmentPatient)
-    add_window("appointment_nurse", frames.appointment_nurse.AppointmentNurse)
+    add_window("appointments", frames.appointments.Appointments, (session, ))
     add_window("doctors_notes", frames.doctors_notes.DoctorsNotes, (dbManager, session))
     add_window("landing", frames.landing.LandingFrame)
-    add_window("record_maintenance_menu", frames.record_maintenance_menu.RecordMaintenanceMenu)
+    add_window("record_maintenance_menu", frames.record_maintenance_menu.RecordMaintenanceMenu, (session, ))
     add_window("user_account_module", frames.user_account_module.UserAccountModule)
-    add_window("patient_info_module", frames.patient_info_module.PatientInfoModule)
+    add_window("patient_info_module", frames.patient_info_module.PatientInfoModule, (session, ))
 
     # create as nurse joy
     # switch_to_window("create_doctor_note", onCreateArgs=(dbManager.get_user(1),))

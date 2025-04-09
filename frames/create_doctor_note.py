@@ -42,6 +42,7 @@ class CreateDoctorNote(tk.Frame):
         self.patient_user_dropdown_values = { }
         
         for p in all_patients:
+            print(p.full_name)
             self.patient_user_dropdown_values[f"{p.full_name} (ID: {p.uuid})"] = p.uuid
         
         dropdown_keys = list(self.patient_user_dropdown_values.keys())
