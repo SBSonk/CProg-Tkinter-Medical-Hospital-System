@@ -48,6 +48,8 @@ class MainMenu(tk.Frame):
                 buttons.append(("My Appointments", self.goto_appointments))
                 buttons.append(("Doctor's Notes", self.goto_doctor_notes))
 
+        buttons.append(("Logout", self.logout))
+
         for text, command in buttons:
             btn = ttk.Button(button_frame, text=text, command=command, padding=(87.5, 12.5))
             btn.pack(fill="x", pady=8)

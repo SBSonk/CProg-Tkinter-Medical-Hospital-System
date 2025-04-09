@@ -40,8 +40,10 @@ class Appointments(tk.Frame):
             ttk.Button(button_frame, text="Schedule Appointment", command=self.schedule_appointment),
             ttk.Button(button_frame, text="Reschedule Appointment", command=self.EditAppointment),
             ttk.Button(button_frame, text="Cancel Appointment", command=self.CancelAppointment),
-            ttk.Button(button_frame, text="Mark as completed", command=self.MarkAsCompleted)
         ]
+        
+        if self.current_user.role != UserRole.PATIENT:
+            buttons.append(ttk.Button(button_frame, text="Mark as completed", command=self.MarkAsCompleted))
 
         i = 0
         for b in buttons:
