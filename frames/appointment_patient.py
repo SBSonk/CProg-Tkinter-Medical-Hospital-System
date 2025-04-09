@@ -1,8 +1,9 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from sqlalchemy.orm import Session
+from models import Appointment, User, UserRole
 from datetime import datetime
-from models import Appointment
+from window_manager import switch_to_window
 
 class AppointmentPatient(tk.Frame):
     def __init__(self, master, session: Session, current_user):
@@ -14,6 +15,9 @@ class AppointmentPatient(tk.Frame):
 
         ttk.Label(self, text="My Appointments", font=("Arial", 16)).pack(pady=10)
 
+        ttk.Button(self, text="Reschedule", command=self.reschedule_appointment).pack(pady=10)
+        ttk.Button(self, text="Schedule Appointment", command=lambda: switch_to_window("create_appointment", onCreateArgs=(current_user,))).pack(pady=10)
+
         self.appointment_tree = ttk.Treeview(self, columns=("Date", "Reason"), show="headings")
         self.appointment_tree.heading("Date", text="Scheduled Time")
         self.appointment_tree.heading("Reason", text="Reason")
@@ -24,8 +28,8 @@ class AppointmentPatient(tk.Frame):
         button_frame = ttk.Frame(self)
         button_frame.pack(pady=10)
 
-        ttk.Button(button_frame, text="New Appointment", command=self.new_appointment).grid(row=0, column=0, padx=5)
-        ttk.Button(button_frame, text="Reschedule", command=self.reschedule_appointment).grid(row=0, column=1, padx=5)
+        #ttk.Button(button_frame, text="New Appointment", command=self.new_appointment).grid(row=0, column=0, padx=5)
+        #ttk.Button(button_frame, text="Reschedule", command=self.reschedule_appointment).grid(row=0, column=1, padx=5)
         ttk.Button(button_frame, text="Cancel", command=self.cancel_appointment).grid(row=0, column=2, padx=5)
 
     def refresh_appointments(self):

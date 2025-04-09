@@ -43,8 +43,8 @@ def main():
     add_window("patient_info_module", frames.patient_info_module.PatientInfoModule)
 
     # create as nurse joy
-    switch_to_window("create_appointment", onCreateArgs=(dbManager.get_user(1),))
-    # switch_to_window("landing")
+    # switch_to_window("create_appointment", onCreateArgs=(dbManager.get_user(1),))
+    switch_to_window("landing")
 
 if __name__ == "__main__":
     main()

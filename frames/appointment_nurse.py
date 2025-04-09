@@ -28,7 +28,9 @@ class AppointmentNurse(tk.Frame):
         self.datetime_entry = ttk.Entry(form_frame)
         self.datetime_entry.grid(row=1, column=1, padx=5, pady=5)
 
-        ttk.Button(form_frame, text="Schedule Appointment", command=self.schedule_appointment).grid(row=2, columnspan=2, pady=10)
+        #ttk.Button(form_frame, text="Schedule Appointment", command=self.schedule_appointment).grid(row=2, columnspan=2, pady=10)
+        ttk.Button(self, text="Reschedule", command=self.reschedule_appointment).pack(pady=10)
+        ttk.Button(self, text="Schedule Appointment", command=lambda: switch_to_window("create_appointment", onCreateArgs=(current_user,))).pack(pady=10)
 
         self.appointments_tree = ttk.Treeview(self, columns=("id", "datetime", "reason", "patient"), show="headings")
         self.appointments_tree.heading("id", text="ID")
@@ -40,10 +42,9 @@ class AppointmentNurse(tk.Frame):
         action_frame = ttk.Frame(self)
         action_frame.pack(pady=10)
 
-        ttk.Button(action_frame, text="Reschedule", command=self.reschedule_appointment).grid(row=0, column=0, padx=5)
         ttk.Button(action_frame, text="Cancel", command=self.cancel_appointment).grid(row=0, column=1, padx=5)
 
-        ttk.Button(self, text="Back", command=lambda: switch_to_window("main_menu", self.current_user)).pack(pady=10)
+        ttk.Button(self, text="Back", command=lambda: switch_to_window("main_menu", onCreateArgs=(current_user,))).pack(pady=10)
 
         self.load_appointments()
 

@@ -15,13 +15,6 @@ class LandingFrame(tk.Frame):
         login_button = ttk.Button(self, text="Login", command=self.goto_login)
         login_button.pack(pady=10)
 
-        # Register Button
-        register_button = ttk.Button(self, text="Register", command=self.goto_register)
-        register_button.pack(pady=10)
-
     def goto_login(self):
         switch_to_window('login')
-
-    def goto_register(self):
-        switch_to_window('register')
 

@@ -4,6 +4,7 @@ from tkcalendar import DateEntry
 import datetime
 from window_manager import switch_to_window
 from sqlalchemy.orm import Session
+import models
 from models import Appointment, User, UserRole
 from tkinter.messagebox import showinfo
 from custom_widgets import PlaceholderText
@@ -41,6 +42,10 @@ class CreateAppointment(tk.Frame):
         self.type_dropdown['values'] = dropdown_keys
         self.type_dropdown.set(dropdown_keys[0])
         self.type_dropdown.grid(row=2, column=0, sticky="ew", padx=(0, 10))
+
+        if self.current_user.role == models.UserRole.PATIENT:
+            self.type_dropdown.set(current_user.full_name)
+            self.type_dropdown.config(state="disabled")
 
         # Date Picker
         ttk.Label(frame, text="Date:", font=entry_font).grid(row=3, column=0, sticky="w")
@@ -94,6 +99,9 @@ class CreateAppointment(tk.Frame):
         # Submit Button
         self.submit_btn = ttk.Button(frame, text="Submit", command=self.submit_appointment, padding=(330, 12.5))
         self.submit_btn.grid(row=7, columnspan=2, pady=(50,10), sticky='ew')
+        
+        self.submit_btn = ttk.Button(frame, text="Back", command=self.goto_appointments, padding=(330, 12.5))
+        self.submit_btn.grid(row=8, columnspan=2, pady=(50,10), sticky='ew')
 
         frame.grid_columnconfigure(0, weight=0)
         frame.grid_columnconfigure(1, weight=1)
@@ -137,5 +145,9 @@ class CreateAppointment(tk.Frame):
             print(f"Database error: {e}")
             showinfo("Error", "Unable to create appointment.")
 
-    def go_back(self):
-        switch_to_window('landing')
+    def goto_appointments(self):
+        print(self.current_user)
+        if self.current_user.role == models.UserRole.PATIENT:
+            switch_to_window("appointment_patient", onCreateArgs=(self.session, self.current_user))
+        elif self.current_user.role == models.UserRole.NURSE:
+            switch_to_window("appointment_nurse", onCreateArgs=(self.session, self.current_user))

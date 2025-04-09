@@ -16,20 +16,27 @@ class MainMenu(tk.Frame):
         frame.grid_rowconfigure(2, pad=20)
 
         ttk.Label(frame, text='Main Menu', font=('Arial', 24)).grid(row=0, column=0, sticky='w', pady=10)
+        
+        register_button = ttk.Button(
+            frame,
+            text="Register User",
+            command=self.goto_register
+        )
+        register_button.grid(row=1, column=0, sticky="w")
 
         appointment_button = ttk.Button(
             frame,
             text="Appointment System",
             command=self.goto_appointments
         )
-        appointment_button.grid(row=1, column=0, sticky="w")
+        appointment_button.grid(row=2, column=0, sticky="w")
 
         maintenance_button = ttk.Button(
             frame,
             text="Record Maintenance",
             command=self.goto_maintenance
         )
-        maintenance_button.grid(row=2, column=0, sticky="w")
+        maintenance_button.grid(row=3, column=0, sticky="w")
 
         frame.pack()
 
@@ -44,4 +51,7 @@ class MainMenu(tk.Frame):
         print(self.current_user)
         if self.current_user.role == models.UserRole.ADMIN:
             switch_to_window("record_maintenance_menu", onCreateArgs=(self.session, self.current_user))
+
+    def goto_register(self):
+        switch_to_window('register')
             
