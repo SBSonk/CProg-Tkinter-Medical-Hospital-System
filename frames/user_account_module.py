@@ -19,10 +19,29 @@ class UserAccountModule(tk.Frame):
 
         self.tree.bind("<<TreeviewSelect>>", self.on_select)
         
-        ttk.Button(self, text="Register User", command=lambda: switch_to_window("register", onCreateArgs=(current_user,))).grid(row=2, column=0, pady=5)
-        ttk.Button(self, text="Edit User", command=self.edit_user).grid(row=2, column=0, columnspan=2, pady=10)
-        ttk.Button(self, text="Delete User", command=self.delete_user).grid(row=2, column=1, pady=5)
-        ttk.Button(self, text="Back", command=lambda: switch_to_window("main_menu", onCreateArgs=(current_user,))).grid(row=3, column=0, columnspan=2, pady=10)
+        # ttk.Button(self, text="Register User", command=lambda: switch_to_window("register", onCreateArgs=(current_user,))).grid(row=2, column=0, pady=5)
+        # ttk.Button(self, text="Edit User", command=self.edit_user).grid(row=2, column=0, columnspan=2, pady=10)
+        # ttk.Button(self, text="Delete User", command=self.delete_user).grid(row=2, column=1, pady=5)
+        # ttk.Button(self, text="Back", command=lambda: switch_to_window("main_menu", onCreateArgs=(current_user,))).grid(row=3, column=0, columnspan=2, pady=10)
+
+        frame = ttk.Frame(self)
+        frame.grid(row=2, column=0, columnspan=2, pady=10)
+
+        button_frame = tk.Frame(frame)
+        button_frame.pack()
+        buttons = [
+            ttk.Button(button_frame, text="Register User", command=self.register_user),
+            ttk.Button(button_frame, text="Edit User", command=self.edit_user),
+            ttk.Button(button_frame, text="Delete User", command=self.delete_user)
+        ]
+
+        i = 0
+        for b in buttons:
+            b.grid(row=0, column=i)
+            i += 1
+                
+        ttk.Button(frame, text="Back to Main Menu", width=30,
+                   command=lambda: switch_to_window("main_menu", onCreateArgs=(current_user,))).pack(pady=20)
 
         self.load_users()
 
@@ -81,3 +100,6 @@ class UserAccountModule(tk.Frame):
             self.session.delete(user)
             self.session.commit()
             self.load_users()
+
+    def register_user(self):
+        switch_to_window("register", onCreateArgs=(self.current_user,))
