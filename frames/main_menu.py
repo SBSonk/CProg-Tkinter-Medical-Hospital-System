@@ -84,7 +84,7 @@ class MainMenu(tk.Frame):
     def goto_appointments(self):
         if self.current_user.role == models.UserRole.PATIENT:
             switch_to_window("appointment_patient", onCreateArgs=(self.session, self.current_user))
-        elif self.current_user.role == models.UserRole.NURSE:
+        else:
             switch_to_window("appointment_nurse", onCreateArgs=(self.session, self.current_user))
 
     def goto_user_management(self):
@@ -94,7 +94,7 @@ class MainMenu(tk.Frame):
         switch_to_window("patient_info_module", onCreateArgs=(self.session, self.current_user))
         
     def goto_doctor_notes(self):
-        switch_to_window("create_doctor_note", onCreateArgs=(self.session, self.current_user))
+        switch_to_window("doctors_notes", onCreateArgs=(self.current_user,))
 
     def goto_maintenance(self):
         if self.current_user.role == models.UserRole.ADMIN:
