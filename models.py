@@ -75,7 +75,8 @@ class User(Base):
 class Appointment(Base):
     __tablename__ = "appointment"
 
-    patient_id: Mapped[int] = mapped_column(ForeignKey("user.uuid"), primary_key=True, nullable=False)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    patient_id: Mapped[int] = mapped_column(ForeignKey("user.uuid"), nullable=False)
     scheduled_time: Mapped[datetime.datetime] = mapped_column(nullable=False)
     reason: Mapped[str] = mapped_column(Text)
     created_by_id: Mapped[int] = mapped_column(ForeignKey("user.uuid"))
