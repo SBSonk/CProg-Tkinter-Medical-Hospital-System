@@ -28,30 +28,95 @@ class Register(tk.Frame):
         else:
             self.disable_patient_form()
 
-    def register_account(self):
+    def submit_account(self):
+        username = self.ent_username.get_text().strip()
+        password = self.ent_password.get_text().strip()
+        security_question = self.ent_security_question.get_text().strip()
+        security_answer = self.ent_security_answer.get_text().strip()
+        full_name = self.ent_name.get_text().strip()
+        contact_info = self.ent_contact.get_text().strip()
+        age = self.ent_age.get()
+        gender = self.gender_var.get()
+        role: str = self.cmb_role.get()
+        treatments = self.ent_treatments.get().strip()  # Add .strip() to clean up input
+        allergies = self.ent_allergies.get().strip()    # Add .strip() to clean up input
+        diseases = self.ent_diseases.get().strip()      # Add .strip() to clean up input
+        
+         # Validation checks
+        if not username or not password or not full_name or not security_question or not security_answer:
+            showinfo("Alert", 'Missing required fields.')
+            return
+
+        if len(password) < 6:  # Enforce password length
+            showinfo("Alert", "Password must be at least 6 characters long.")
+            return
+        
         if self.user_to_edit:
             # Update logic
             u = self.user_to_edit
-            u.role = models.UserRole(self.cmb_role.get())
-            u.full_name = self.ent_name.get_text().strip()
-            u.age = int(self.ent_age.get())
-            u.gender = self.gender_var.get()
-            u.contact_info = self.ent_contact.get_text().strip()
+            u.role = models.UserRole(role)
+            u.full_name = full_name
+            u.age = int(age)
+            u.gender = gender
+            u.contact_info = contact_info
 
             if u.role == models.UserRole.PATIENT:
                 patient = self.session.query(models.Patient).filter_by(user_id=u.uuid).first()
                 if not patient:
                     patient = models.Patient(user_id=u.uuid)
                     self.session.add(patient)
-                patient.diseases = self.ent_diseases.get().strip()
-                patient.allergies = self.ent_allergies.get().strip()
-                patient.treatments = self.ent_treatments.get().strip()
+                patient.diseases = diseases
+                patient.allergies = allergies
+                patient.treatments = treatments
 
-            self.session.commit()
+            try:
+                self.session.commit()
+            except Exception as e:
+                self.session.rollback()
+                print(f'Account update error: {e}')
+                
             showinfo("Alert", "User updated successfully!")
         else:
-            self.register_account()  # Original logic
-            showinfo("Alert", "User created successfully!")
+            # Check if the username already exists in the database
+            existing_user = self.session.query(models.User).filter(models.User.username == username).first()
+            if existing_user:
+                showinfo("Alert", "Username already exists. Please choose a different username.")
+                return
+            
+            new_user = models.User(
+                username=username,
+                password=password,
+                security_question=security_question,
+                security_answer=security_answer,
+                role=models.UserRole(role.upper()),
+                full_name=full_name,
+                age=int(age),
+                gender=gender,
+                contact_info=contact_info
+            )
+            
+            try:
+                self.session.add(new_user)
+                self.session.commit()
+
+                # Now create the Patient record using the user_id (foreign key) only IF PATIENT
+                if new_user.role == models.UserRole.PATIENT:
+                    new_patient = models.Patient(
+                        user_id=new_user.uuid,  # Link Patient to the newly created User
+                        treatments=treatments,
+                        allergies=allergies,
+                        diseases=diseases
+                    )
+                    
+                    # Add the Patient to the session
+                    self.session.add(new_patient)
+                    self.session.commit()
+
+                # Success message
+                showinfo("Alert", "User and Patient creation successful.")
+            except Exception as e:
+                self.session.rollback()
+                print(f'Account creation error: {e}')
 
         switch_to_window("user_account_module", onCreateArgs=(self.current_user,))
         
@@ -227,7 +292,7 @@ class Register(tk.Frame):
             frame,
             text=save_text,
             padding=(330, 12.5),
-            command=self.register_account,
+            command=self.submit_account,
         )
         self.btn_register.grid(row=7, columnspan=3, pady=(50,10))
 
@@ -245,6 +310,7 @@ class Register(tk.Frame):
         self.ent_username.set_text(u.username)
         self.ent_username.config(state='disabled')  # can't change username
         self.cmb_role.set(u.role.value)
+        self.cmb_role.config(state="disabled")
         self.ent_name.set_text(u.full_name)
         self.ent_age.set(u.age)
         self.gender_var.set(u.gender)
