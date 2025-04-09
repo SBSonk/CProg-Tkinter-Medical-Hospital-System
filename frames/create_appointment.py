@@ -36,7 +36,7 @@ class CreateAppointment(tk.Frame):
         self.patient_user_dropdown_values = { }
         
         for p in all_patients:
-            self.patient_user_dropdown_values[p.full_name] = p.uuid
+            self.patient_user_dropdown_values[f"{current_user.full_name} (ID: {current_user.uuid})"] = p.uuid
         
         dropdown_keys = list(self.patient_user_dropdown_values.keys())
         self.type_dropdown['values'] = dropdown_keys
@@ -44,7 +44,7 @@ class CreateAppointment(tk.Frame):
         self.type_dropdown.grid(row=2, column=0, sticky="ew", padx=(0, 10))
 
         if self.current_user.role == models.UserRole.PATIENT:
-            self.type_dropdown.set(current_user.full_name)
+            self.type_dropdown.set(f"{current_user.full_name} (ID: {current_user.uuid})")
             self.type_dropdown.config(state="disabled")
 
         # Date Picker
