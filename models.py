@@ -78,6 +78,12 @@ class Appointment(Base):
     created_by: Mapped["User"] = relationship(
         foreign_keys=[created_by_id], back_populates="created_appointments"
     )
+    
+    def __init__(self, patient_id, scheduled_time, reason, created_by_id):
+        self.patient_id = patient_id
+        self.scheduled_time = scheduled_time
+        self.reason = reason
+        self.created_by_id = created_by_id
 
 class Patient(Base):
     __tablename__ = "patient"

@@ -72,17 +72,18 @@ class Register(tk.Frame):
             self.session.add(new_user)
             self.session.commit()
 
-            # Now create the Patient record using the user_id (foreign key)
-            new_patient = models.Patient(
-                user_id=new_user.uuid,  # Link Patient to the newly created User
-                treatments=treatments,
-                allergies=allergies,
-                diseases=diseases
-            )
-            
-            # Add the Patient to the session
-            self.session.add(new_patient)
-            self.session.commit()
+            # Now create the Patient record using the user_id (foreign key) only IF PATIENT
+            if new_user.role == models.UserRole.PATIENT:
+                new_patient = models.Patient(
+                    user_id=new_user.uuid,  # Link Patient to the newly created User
+                    treatments=treatments,
+                    allergies=allergies,
+                    diseases=diseases
+                )
+                
+                # Add the Patient to the session
+                self.session.add(new_patient)
+                self.session.commit()
 
             # Success message
             showinfo("Alert", "User and Patient creation successful.")
@@ -238,7 +239,7 @@ class Register(tk.Frame):
         )
         self.btn_register.grid(row=6, columnspan=3, pady=(50,10))
 
-        frame.pack(padx=10, pady=10)
+        frame.pack(padx=15, pady=15)
 
     def go_back(self):
         switch_to_window('landing')
