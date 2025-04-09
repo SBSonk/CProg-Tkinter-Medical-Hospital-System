@@ -1,6 +1,6 @@
 import tkinter as tk
-from tkinter import messagebox
 import models
+from tkinter import messagebox
 from sqlalchemy.orm import Session
 from tkinter import ttk
 from tkinter.messagebox import showinfo
@@ -91,15 +91,16 @@ class Register(tk.Frame):
 
             # Success message
             showinfo("Alert", "User and Patient creation successful.")
-            switch_to_window('main_menu', onCreateArgs=(new_user,))
+            switch_to_window("main_menu", onCreateArgs=(current_user,))
         except Exception as e:
             self.session.rollback()
             print(f'Account creation error: {e}')
 
 
-    def __init__(self, master, session: Session):
+    def __init__(self, master, session: Session, current_user):
         super().__init__(master)
         self.session = session
+        self.current_user = current_user
 
         frame = tk.Frame(self)
 
