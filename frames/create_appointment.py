@@ -6,6 +6,7 @@ from window_manager import switch_to_window
 from sqlalchemy.orm import Session
 from models import Appointment, User
 from tkinter.messagebox import showinfo
+from custom_widgets import PlaceholderText
 
 entry_font = ("Arial", 12)
 
@@ -71,10 +72,18 @@ class CreateAppointment(tk.Frame):
         self.period_combo.set("AM")
         self.period_combo.grid(row=0, column=2)
 
-        # Textbox for Reason
+        # Textbox for Reason using PlaceholderText
         ttk.Label(frame, text="Reason:", font=entry_font).grid(row=1, column=1, sticky="nw")
-        self.reason_text = tk.Text(frame, width=30, height=10, font=entry_font)
+        self.reason_text = PlaceholderText(
+            master=frame,
+            placeholder_text="Write your reason here...",
+            normal_font=entry_font,
+            placeholder_font=entry_font,
+            width=30,
+            height=10
+        )
         self.reason_text.grid(row=2, column=1, rowspan=5, sticky="nsew")
+
 
         # Submit Button
         self.submit_btn = ttk.Button(frame, text="Submit", command=self.submit_appointment, padding=(330, 12.5))

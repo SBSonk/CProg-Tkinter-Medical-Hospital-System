@@ -72,7 +72,60 @@ class PlaceholderEntry(ttk.Entry):
         self.bind('<FocusIn>', self.focus_in)
         self.bind('<FocusOut>', self.focus_out)
 
-        self.focus_out(lambda: _)
+class PlaceholderText(tk.Text):
+    def __init__(
+        self,
+        master=None,
+        placeholder_text="",
+        normal_font=('Arial', 12),
+        text_color='black',
+        placeholder_font=('Arial', 12, 'italic'),
+        placeholder_color='gray',
+        width=30,
+        height=5,
+        **kwargs
+    ):
+        super().__init__(master, width=width, height=height, font=normal_font, fg=text_color, **kwargs)
+
+        self.placeholder_text = placeholder_text
+        self.normal_font = normal_font
+        self.text_color = text_color
+        self.placeholder_font = placeholder_font
+        self.placeholder_color = placeholder_color
+        self.has_placeholder = False
+
+        self.bind("<FocusIn>", self.focus_in)
+        self.bind("<FocusOut>", self.focus_out)
+
+        self.insert_placeholder()
+
+    def insert_placeholder(self):
+        self.delete("1.0", "end")
+        self.insert("1.0", self.placeholder_text)
+        self.config(font=self.placeholder_font, fg=self.placeholder_color)
+        self.has_placeholder = True
+
+    def focus_in(self, event):
+        if self.has_placeholder:
+            self.delete("1.0", "end")
+            self.config(font=self.normal_font, fg=self.text_color)
+            self.has_placeholder = False
+
+    def focus_out(self, event):
+        if not self.get("1.0", "end-1c").strip():
+            self.insert_placeholder()
+
+    def get_text(self):
+        if self.has_placeholder:
+            return ""
+        return self.get("1.0", "end-1c")
+
+    def set_text(self, content: str):
+        self.delete("1.0", "end")
+        self.insert("1.0", content)
+        self.config(font=self.normal_font, fg=self.text_color)
+        self.has_placeholder = False
+
 
 # Label with color changes on hover
 class HyperlinkLabel(ttk.Label):
