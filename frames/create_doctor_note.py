@@ -13,7 +13,9 @@ from database import DatabaseManager
 entry_font = ("Arial", 12)
 
 class CreateDoctorNote(tk.Frame):
-    def __init__(self, master, session, dbManager: DatabaseManager, current_user):
+    note_to_edit: models.DoctorNote = None
+    
+    def __init__(self, master, session, dbManager: DatabaseManager, current_user, note: models.DoctorNote = None):
         super().__init__(master)
         self.session: Session = session
         self.current_user: User = current_user
@@ -63,6 +65,15 @@ class CreateDoctorNote(tk.Frame):
 
         frame.grid_columnconfigure(0, weight=0)
         frame.grid_columnconfigure(1, weight=1)
+        
+        # Set original values if editing
+        if note:
+            original_patient = dbManager.get_user(note.patient_id)
+            self.patient_dropdown.set(f"{original_patient.full_name} (ID: {original_patient.uuid})")
+            self.patient_dropdown.configure(state="disabled")
+            self.note_text.set_text(note.note)
+            
+            self.note_to_edit = note
 
     def submit_note(self):
         try:
@@ -74,16 +85,22 @@ class CreateDoctorNote(tk.Frame):
             
             created_by_id = self.current_user.uuid
             
-            new_note = DoctorNote(
-                patient_id,
-                note,
-                created_by_id
-            )
+            if self.note_to_edit:
+                self.note_to_edit.note = note
+                self.session.commit()
+                showinfo("Alert", "Doctor note successfully updated!")
+            else:
+                new_note = DoctorNote(
+                    patient_id,
+                    note,
+                    created_by_id
+                )
 
-            self.session.add(new_note)
-            self.session.commit()
-            
-            showinfo("Alert", "Doctor note successfully created!")
+                self.session.add(new_note)
+                self.session.commit()
+                
+                showinfo("Alert", "Doctor note successfully created!")
+            switch_to_window('doctors_notes', onCreateArgs=(self.current_user,))
         except Exception as e:
             self.session.rollback()
             print(f"Database error: {e}")

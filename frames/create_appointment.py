@@ -95,7 +95,6 @@ class CreateAppointment(tk.Frame):
         )
         self.reason_text.grid(row=2, column=1, rowspan=5, sticky="nsew")
 
-
         # Submit Button
         self.submit_btn = ttk.Button(frame, text="Submit", command=self.submit_appointment, padding=(330, 12.5))
         self.submit_btn.grid(row=7, columnspan=2, pady=(50,10), sticky='ew')
