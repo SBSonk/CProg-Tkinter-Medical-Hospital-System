@@ -15,8 +15,8 @@ class AppointmentPatient(tk.Frame):
 
         ttk.Label(self, text="My Appointments", font=("Arial", 16)).pack(pady=10)
 
-        ttk.Button(self, text="Reschedule", command=self.reschedule_appointment).pack(pady=10)
-        ttk.Button(self, text="Schedule Appointment", command=lambda: switch_to_window("create_appointment", onCreateArgs=(current_user,))).pack(pady=10)
+        #ttk.Button(self, text="Reschedule Selected Appointment", command=self.reschedule_appointment).pack(pady=10)
+        ttk.Button(self, text="Schedule New Appointment", command=lambda: switch_to_window("create_appointment", onCreateArgs=(current_user,))).pack(pady=10)
 
         self.appointment_tree = ttk.Treeview(self, columns=("Date", "Reason"), show="headings")
         self.appointment_tree.heading("Date", text="Scheduled Time")
@@ -29,14 +29,15 @@ class AppointmentPatient(tk.Frame):
         button_frame.pack(pady=10)
 
         #ttk.Button(button_frame, text="New Appointment", command=self.new_appointment).grid(row=0, column=0, padx=5)
-        #ttk.Button(button_frame, text="Reschedule", command=self.reschedule_appointment).grid(row=0, column=1, padx=5)
-        ttk.Button(button_frame, text="Cancel", command=self.cancel_appointment).grid(row=0, column=2, padx=5)
+        ttk.Button(button_frame, text="Reschedule Selected Appointment", command=self.reschedule_appointment).grid(row=0, column=1, padx=5)
+        ttk.Button(button_frame, text="Cancel Selected Appointment", command=self.cancel_appointment).grid(row=0, column=2, padx=5)
+        ttk.Button(self, text="Back", command=lambda: switch_to_window("main_menu", onCreateArgs=(current_user,))).pack(pady=10)
 
     def refresh_appointments(self):
         for item in self.appointment_tree.get_children():
             self.appointment_tree.delete(item)
 
-        appointments = self.session.query(Appointment).filter_by(patient_id=self.current_user.id).all()
+        appointments = self.session.query(Appointment).filter_by(patient_id=self.current_user.uuid).all()
         for appt in appointments:
             self.appointment_tree.insert("", "end", iid=appt.id, values=(appt.scheduled_time, appt.reason))
 

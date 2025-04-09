@@ -115,7 +115,7 @@ class CreateAppointment(tk.Frame):
             hour = int(self.hour_var.get()) + 12 if self.period_var.get() == "PM" else int(self.hour_var.get())
             time = datetime.time(hour, int(self.minute_var.get()))
             
-            reason = self.reason_text.get("1.0", "end").strip()
+            reason = self.reason_text.get_text().strip()
             if reason == "":
                 showinfo("Alert", "Please input a reason.")
                 return
