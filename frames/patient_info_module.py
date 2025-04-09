@@ -39,8 +39,8 @@ class PatientInfoModule(tk.Frame):
         tree.pack(fill="both", expand=True)
         
         # Buttons frame
-        button_frame = tk.Frame(frame)
-        button_frame.pack(pady=10)
+        # button_frame = tk.Frame(frame)
+        # button_frame.pack(pady=10)
         
         # Back Button
         ttk.Button(self, text="Back", width=30, command=lambda: switch_to_window("main_menu", onCreateArgs=(current_user,))).pack(pady=20)

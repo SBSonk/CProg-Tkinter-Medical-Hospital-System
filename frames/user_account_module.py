@@ -12,17 +12,13 @@ class UserAccountModule(tk.Frame):
 
         ttk.Label(self, text="User Account Management", font=('Arial', 16)).grid(row=0, column=0, columnspan=2, pady=10)
 
-        self.tree = ttk.Treeview(self, columns=("ID", "Username", "Role", "Name"), show="headings", height=10)
+        # Added Contact Info column
+        self.tree = ttk.Treeview(self, columns=("ID", "Username", "Role", "Name", "Contact Info"), show="headings", height=10)
         for col in self.tree["columns"]:
             self.tree.heading(col, text=col)
         self.tree.grid(row=1, column=0, columnspan=2, padx=10)
 
         self.tree.bind("<<TreeviewSelect>>", self.on_select)
-        
-        # ttk.Button(self, text="Register User", command=lambda: switch_to_window("register", onCreateArgs=(current_user,))).grid(row=2, column=0, pady=5)
-        # ttk.Button(self, text="Edit User", command=self.edit_user).grid(row=2, column=0, columnspan=2, pady=10)
-        # ttk.Button(self, text="Delete User", command=self.delete_user).grid(row=2, column=1, pady=5)
-        # ttk.Button(self, text="Back", command=lambda: switch_to_window("main_menu", onCreateArgs=(current_user,))).grid(row=3, column=0, columnspan=2, pady=10)
 
         frame = ttk.Frame(self)
         frame.grid(row=2, column=0, columnspan=2, pady=10)
@@ -49,7 +45,8 @@ class UserAccountModule(tk.Frame):
         self.tree.delete(*self.tree.get_children())
         users = self.session.query(User).all()
         for user in users:
-            self.tree.insert("", "end", values=(user.uuid, user.username, user.role.value, user.full_name))
+            # Added the contact info field to the table rows
+            self.tree.insert("", "end", values=(user.uuid, user.username, user.role.value, user.full_name, user.contact_info))
 
     def on_select(self, event):
         selected = self.tree.selection()
