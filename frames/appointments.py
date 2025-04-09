@@ -6,12 +6,14 @@ from models import Appointment, User, UserRole
 from datetime import datetime
 from window_manager import switch_to_window
 from tkinter.messagebox import showinfo
+from database import DatabaseManager
 
 class Appointments(tk.Frame):
-    def __init__(self, master, session: Session, current_user: User):
+    def __init__(self, master, dbManager: DatabaseManager, session: Session, current_user: User):
         super().__init__(master)
         self.session = session
         self.current_user = current_user
+        self.dbManager = dbManager
 
         self.appointments_tree = None
         self.reason_entry = None
@@ -35,9 +37,10 @@ class Appointments(tk.Frame):
         button_frame = tk.Frame(frame)
         button_frame.pack()
         buttons = [
-            ttk.Button(button_frame, text="Schedule New Appointment", command=lambda: switch_to_window("create_appointment", onCreateArgs=(current_user,))),
-            ttk.Button(button_frame, text="Reschedule Selected Appointment", command=self.EditAppointment),
-            ttk.Button(button_frame, text="Cancel Selected Appointment", command=self.CancelAppointment)
+            ttk.Button(button_frame, text="Schedule Appointment", command=self.schedule_appointment),
+            ttk.Button(button_frame, text="Reschedule Appointment", command=self.EditAppointment),
+            ttk.Button(button_frame, text="Cancel Appointment", command=self.CancelAppointment),
+            ttk.Button(button_frame, text="Mark as completed", command=self.MarkAsCompleted)
         ]
 
         i = 0
@@ -75,27 +78,11 @@ class Appointments(tk.Frame):
             self.appointments_tree.insert("", "end", iid=appt.id, values=(appt.scheduled_time, appt.reason))
     
     def schedule_appointment(self):
-        reason = self.reason_entry.get()
-        dt_str = self.datetime_entry.get()
-
-        try:
-            scheduled_time = datetime.strptime(dt_str, "%Y-%m-%d %H:%M")
-        except ValueError:
-            messagebox.showerror("Invalid Date", "Enter datetime as YYYY-MM-DD HH:MM")
+        if not self.dbManager.has_patients():
+            showinfo("Alert", "Add patients to the database first!")
             return
-
-        new_appointment = Appointment(
-            patient_id=self.current_user.uuid,
-            scheduled_time=scheduled_time,
-            reason=reason,
-            created_by_id=self.current_user.uuid,
-        )
-
-        self.session.add(new_appointment)
-        self.session.commit()
-        self.LoadTable()
-        self.reason_entry.delete(0, tk.END)
-        self.datetime_entry.delete(0, tk.END)
+        
+        switch_to_window("create_appointment", onCreateArgs=(self.current_user,))
 
     def EditAppointment(self):
         if self.appointments_tree:
@@ -107,6 +94,30 @@ class Appointments(tk.Frame):
             selectedItem = self.appointments_tree.item(selection[0])["values"]
             appt = self.session.query(models.Appointment).where(models.Appointment.id == selectedItem[0]).one_or_none()
             switch_to_window('create_appointment', onCreateArgs=(self.current_user, appt))
+            
+    def MarkAsCompleted(self):
+        if self.appointments_tree:
+            selection = self.appointments_tree.selection()
+            if not selection:
+                showinfo("Alert", "There is nothing selected.")
+                return
+
+            try:
+                selectedItem = self.appointments_tree.item(selection[0])["values"]
+                appt = self.session.query(models.Appointment).where(models.Appointment.id == selectedItem[0]).one_or_none()
+                
+                if appt:
+                    # Make sure the status enum has "COMPLETED"
+                    from models import AppointmentStatus
+                    appt.status = AppointmentStatus.COMPLETED
+                    self.session.commit()
+                    showinfo("Success", "Appointment marked as completed.")
+                    self.LoadTable()
+                else:
+                    showinfo("Error", "Appointment not found.")
+            except Exception as e:
+                print(f"Error marking appointment as completed: {e}")
+                showinfo("Error", "Failed to update appointment.")
         
 
     def CancelAppointment(self):

@@ -29,3 +29,6 @@ class DatabaseManager:
     # Patient Operations
     def get_patient(self, user_id: int) -> Patient:
         return self.session.query(Patient).filter_by(user_id=user_id).first()
+    
+    def has_patients(self) -> bool:
+        return self.session.query(Patient).first() is not None
