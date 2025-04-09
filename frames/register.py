@@ -269,4 +269,4 @@ class Register(tk.Frame):
         frame.pack(padx=15, pady=15)
 
     def go_back(self):
-        switch_to_window("user_account_module", onCreateArgs=(self.session, self.current_user))
+        switch_to_window("user_account_module", onCreateArgs=(self.current_user,))

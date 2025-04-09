@@ -64,6 +64,9 @@ class CreateDoctorNote(tk.Frame):
         self.submit_btn = ttk.Button(frame, text="Submit", command=self.submit_note, padding=(330, 12.5))
         self.submit_btn.grid(row=7, columnspan=2, pady=(50,10), sticky='ew')
 
+        self.back_btn = ttk.Button(frame, text="Back", command=self.go_to_doctors_notes, padding=(330, 12.5))
+        self.back_btn.grid(row=8, columnspan=2, pady=(0,10), sticky='ew')
+
         frame.grid_columnconfigure(0, weight=0)
         frame.grid_columnconfigure(1, weight=1)
         
@@ -107,9 +110,5 @@ class CreateDoctorNote(tk.Frame):
             print(f"Database error: {e}")
             showinfo("Error", "Unable to create doctor note.")
 
-    def goto_appointments(self):
-        print(self.current_user)
-        if self.current_user.role == models.UserRole.PATIENT:
-            switch_to_window("appointment_patient", onCreateArgs=(self.session, self.current_user))
-        elif self.current_user.role == models.UserRole.NURSE:
-            switch_to_window("appointment_nurse", onCreateArgs=(self.session, self.current_user))
+    def go_to_doctors_notes(self):
+        switch_to_window("doctors_notes", onCreateArgs=(self.current_user,))

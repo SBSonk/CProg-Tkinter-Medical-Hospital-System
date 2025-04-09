@@ -101,8 +101,8 @@ class CreateAppointment(tk.Frame):
         self.submit_btn = ttk.Button(frame, text="Submit", command=self.submit_appointment, padding=(330, 12.5))
         self.submit_btn.grid(row=7, columnspan=2, pady=(50,10), sticky='ew')
         
-        self.submit_btn = ttk.Button(frame, text="Back", command=self.goto_appointments, padding=(330, 12.5))
-        self.submit_btn.grid(row=8, columnspan=2, pady=(0,10), sticky='ew')
+        self.back_btn = ttk.Button(frame, text="Back", command=self.goto_appointments, padding=(330, 12.5))
+        self.back_btn.grid(row=8, columnspan=2, pady=(0,10), sticky='ew')
 
         frame.grid_columnconfigure(0, weight=0)
         frame.grid_columnconfigure(1, weight=1)
@@ -144,5 +144,5 @@ class CreateAppointment(tk.Frame):
 
     def goto_appointments(self):
         print(self.current_user)
-        switch_to_window("appointments", onCreateArgs=(self.session, self.current_user))
+        switch_to_window("appointments", onCreateArgs=(self.current_user,))
         
