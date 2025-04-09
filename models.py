@@ -15,6 +15,10 @@ class UserRole(enum.Enum):
     NURSE = "NURSE"
     PATIENT = "PATIENT"
 
+class AppointmentStatus(enum.Enum):
+    UPCOMING = "UPCOMING"
+    FINISHED = "FINISHED"
+    CANCELLED = "CANCELLED"
 
 class User(Base):
     __tablename__ = "user"
@@ -24,9 +28,9 @@ class User(Base):
     password_hash: Mapped[str] = mapped_column(String(60), nullable=False)
     security_question: Mapped[str] = mapped_column(String(255), nullable=False)
     security_answer_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    role: Mapped[UserRole] = mapped_column(Enum(UserRole))
     
     # Additional Fields
-    role: Mapped[UserRole] = mapped_column(Enum(UserRole), nullable=True)
     full_name: Mapped[str] = mapped_column(String(100), nullable=True)
     age: Mapped[int] = mapped_column(nullable=True)
     gender: Mapped[str] = mapped_column(String(10), nullable=True)
@@ -41,7 +45,7 @@ class User(Base):
     )
 
     # One-to-one relationship to Patient, only if the user is a patient
-    patient: Mapped["Patient"] = relationship("Patient", back_populates="user", uselist=False)
+    patient: Mapped["Patient"] = relationship("Patient", back_populates="user", uselist=False, cascade="all, delete")
 
     def set_password(self, password: str):
         self.password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
@@ -80,10 +84,12 @@ class Appointment(Base):
     scheduled_time: Mapped[datetime.datetime] = mapped_column(nullable=False)
     reason: Mapped[str] = mapped_column(Text)
     created_by_id: Mapped[int] = mapped_column(ForeignKey("user.uuid"))
+    status: Mapped[AppointmentStatus] = mapped_column(Enum(AppointmentStatus)) 
 
     patient: Mapped["User"] = relationship(
         foreign_keys=[patient_id], back_populates="appointments"
     )
+    
     created_by: Mapped["User"] = relationship(
         foreign_keys=[created_by_id], back_populates="created_appointments"
     )
@@ -92,6 +98,27 @@ class Appointment(Base):
         self.patient_id = patient_id
         self.scheduled_time = scheduled_time
         self.reason = reason
+        self.created_by_id = created_by_id
+
+class DoctorNote(Base):
+    __tablename__ = "doctor_note"
+    
+    id: Mapped[int] = mapped_column(primary_key=True)
+    patient_id: Mapped[int] = mapped_column(ForeignKey("user.uuid"), nullable=False)
+    note: Mapped[str] = mapped_column(Text)
+    created_by_id: Mapped[int] = mapped_column(ForeignKey("user.uuid"))
+    
+    patient: Mapped["User"] = relationship(
+        foreign_keys=[patient_id], back_populates="appointments"
+    )
+    
+    created_by: Mapped["User"] = relationship(
+        foreign_keys=[created_by_id], back_populates="created_appointments"
+    )
+    
+    def __init__(self, patient_id, note, created_by_id):
+        self.patient_id = patient_id
+        self.note = note
         self.created_by_id = created_by_id
 
 class Patient(Base):
