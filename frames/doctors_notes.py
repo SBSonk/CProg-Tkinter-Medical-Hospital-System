@@ -50,19 +50,20 @@ class DoctorsNotes(tk.Frame):
         tree.pack(fill="both", expand=True)
         
         # Buttons
-        button_frame = tk.Frame(frame)
-        button_frame.pack()
-        buttons = [
-            ttk.Button(button_frame, text="Add Note", command=self.CreateNote),
-            ttk.Button(button_frame, text="Edit Note", command=self.EditNote),
-            ttk.Button(button_frame, text="Delete Note", command=self.DeleteNote)
-        ]
-        
-        i = 0
-        for b in buttons:
-            b.grid(row=0, column=i)
-            i += 1
+        if self.current_user.role != UserRole.PATIENT:
+            button_frame = tk.Frame(frame)
+            button_frame.pack()
+            buttons = [
+                ttk.Button(button_frame, text="Add Note", command=self.CreateNote),
+                ttk.Button(button_frame, text="Edit Note", command=self.EditNote),
+                ttk.Button(button_frame, text="Delete Note", command=self.DeleteNote)
+            ]
             
+            i = 0
+            for b in buttons:
+                b.grid(row=0, column=i)
+                i += 1
+                
         self.tree = tree
         self.LoadTable()
         
@@ -73,6 +74,9 @@ class DoctorsNotes(tk.Frame):
     def LoadTable(self):
         tree = self.tree
         data = self.dbManager.get_all_doctor_notes()
+
+        if self.current_user.role == UserRole.PATIENT:
+            data = filter(lambda n: n.patient_id == self.current_user.uuid, data)
 
         # Clear existing items first
         for item in tree.get_children():
@@ -106,6 +110,7 @@ class DoctorsNotes(tk.Frame):
     def DeleteNote(self):
         if self.tree:
             selection = self.tree.selection()
+            
             if not selection:
                 return
             
@@ -123,6 +128,7 @@ class DoctorsNotes(tk.Frame):
             except Exception as e:
                 print(f"Error: {e}")
                 showinfo("Alert", "Failed to delete note.")
+                
 
 
 

@@ -49,7 +49,7 @@ def main():
     # create as nurse joy
     # switch_to_window("create_doctor_note", onCreateArgs=(dbManager.get_user(1),))
     # switch_to_window("landing")
-    switch_to_window("doctors_notes", onCreateArgs=(dbManager.get_user(1),))
+    switch_to_window("doctors_notes", onCreateArgs=(dbManager.get_user(3),))
     # switch_to_window("register")
 
 if __name__ == "__main__":
