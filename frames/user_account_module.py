@@ -18,8 +18,9 @@ class UserAccountModule(tk.Frame):
         self.tree.grid(row=1, column=0, columnspan=2, padx=10)
 
         self.tree.bind("<<TreeviewSelect>>", self.on_select)
-
-        ttk.Button(self, text="Edit User", command=self.edit_user).grid(row=2, column=0, pady=5)
+        
+        ttk.Button(self, text="Register User", command=lambda: switch_to_window("register", onCreateArgs=(current_user,))).grid(row=2, column=0, pady=5)
+        ttk.Button(self, text="Edit User", command=self.edit_user).grid(row=2, column=0, columnspan=2, pady=10)
         ttk.Button(self, text="Delete User", command=self.delete_user).grid(row=2, column=1, pady=5)
         ttk.Button(self, text="Back", command=lambda: switch_to_window("main_menu", onCreateArgs=(current_user,))).grid(row=3, column=0, columnspan=2, pady=10)
 
@@ -80,6 +81,3 @@ class UserAccountModule(tk.Frame):
             self.session.delete(user)
             self.session.commit()
             self.load_users()
-
-    def register(self):
-        switch_to_window("register")

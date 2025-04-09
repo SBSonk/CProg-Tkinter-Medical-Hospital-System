@@ -35,13 +35,13 @@ class MainMenu(tk.Frame):
                 buttons.append(("User Management", self.goto_user_management))
                 buttons.append(("Patient List", self.goto_patient_list))
                 buttons.append(("Appointment System", self.goto_appointments))
-                buttons.append(("Doctor's Notes", self.goto_doctor_notes))  # Replace with actual note screen
+                buttons.append(("Doctor's Notes", self.goto_doctor_notes))
             case UserRole.DOCTOR:
-                buttons.append(("Patient List", self.goto_maintenance))
+                buttons.append(("Patient List", self.goto_patient_list))
                 buttons.append(("Appointment System", self.goto_appointments))
                 buttons.append(("Doctor's Notes", self.goto_doctor_notes))
             case UserRole.NURSE:
-                buttons.append(("Patient List", self.goto_maintenance))
+                buttons.append(("Patient List", self.goto_patient_list))
                 buttons.append(("Appointment System", self.goto_appointments))
                 buttons.append(("Doctor's Notes", self.goto_doctor_notes))
             case UserRole.PATIENT:
@@ -105,12 +105,3 @@ class MainMenu(tk.Frame):
 
     def logout(self):
         switch_to_window("login")
-
-        # ttk.Button(self, text="User Accounts", width=30,
-        #            command=lambda: switch_to_window("user_account_module", onCreateArgs=(self.session, self.current_user))).pack(pady=5)
-
-        # ttk.Button(self, text="Patient Information List", width=30,
-        #            command=lambda: switch_to_window("patient_info_module", onCreateArgs=(self.session, self.current_user))).pack(pady=5)
-
-        # ttk.Button(self, text="Back to Main Menu", width=30,
-        #            command=lambda: switch_to_window("main_menu", onCreateArgs=(current_user,))).pack(pady=20)

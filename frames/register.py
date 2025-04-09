@@ -106,9 +106,6 @@ class Register(tk.Frame):
 
         frame.grid_rowconfigure(3, pad=10)
         frame.grid_rowconfigure(5, pad=10)
-
-        register_button = ttk.Button(frame, text="Register New Uswe", command=self.register)
-        register_button.grid(row=0, column=0, pady=10, sticky='nw')
         
         back_button = ttk.Button(frame, text="Back", command=self.go_back)
         back_button.grid(row=1, column=0, pady=10, sticky='nw')
@@ -272,4 +269,4 @@ class Register(tk.Frame):
         frame.pack(padx=15, pady=15)
 
     def go_back(self):
-        switch_to_window('landing')
+        switch_to_window("user_account_module", onCreateArgs=(self.session, self.current_user))

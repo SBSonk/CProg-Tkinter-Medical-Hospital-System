@@ -9,19 +9,58 @@ class PatientInfoModule(tk.Frame):
         self.session = session
         self.current_user = current_user
 
-        ttk.Label(self, text="Patient Information", font=('Arial', 16)).pack(pady=10)
+        frame = ttk.Frame(self)
+        frame.pack(padx=15, pady=15)
+        
+        # Title Label
+        ttk.Label(frame, text="Patient Information", font=("Arial", 24, 'bold')).pack(pady=10)
+        
+        # Proper column identifiers and widths for the table
+        columns = [
+            ("ID", 25),
+            ("USERNAME", 100),
+            ("NAME", 150),
+            ("AGE", 50),
+            ("GENDER", 80),
+            ("CONTACT", 150)
+        ]
+        
+        # Extract just the column names for the Treeview
+        col_ids = [col[0] for col in columns]
 
-        self.tree = ttk.Treeview(self, columns=("ID", "Username", "Name", "Age", "Gender", "Contact"), show="headings")
-        for col in self.tree["columns"]:
-            self.tree.heading(col, text=col)
-        self.tree.pack(pady=10)
+        # Treeview setup
+        tree = ttk.Treeview(frame, columns=col_ids, show="headings", selectmode="browse")
 
-        ttk.Button(self, text="Back", command=lambda: switch_to_window("main_menu", onCreateArgs=(current_user,))).pack(pady=10)
+        # Configure each column's heading and width
+        for name, width in columns:
+            tree.heading(name, text=name)
+            tree.column(name, width=width)
 
+        tree.pack(fill="both", expand=True)
+        
+        # Buttons frame
+        button_frame = tk.Frame(frame)
+        button_frame.pack(pady=10)
+        
+        # Back Button
+        ttk.Button(self, text="Back", width=30, command=lambda: switch_to_window("main_menu", onCreateArgs=(current_user,))).pack(pady=20)
+
+        self.tree = tree
         self.load_patients()
 
     def load_patients(self):
+        # Fetching patient data from the database
         self.tree.delete(*self.tree.get_children())
         patients = self.session.query(User).filter_by(role=UserRole.PATIENT).all()
+        
+        # Insert rows into the treeview
         for patient in patients:
-            self.tree.insert("", "end", values=(patient.uuid, patient.username, patient.full_name, patient.age, patient.gender, patient.contact_info))
+            row = (
+                patient.uuid, 
+                patient.username, 
+                patient.full_name, 
+                patient.age, 
+                patient.gender, 
+                patient.contact_info
+            )
+            self.tree.insert("", "end", values=row)
