@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from models import Appointment, User, UserRole
 from datetime import datetime
 from window_manager import switch_to_window
+from tkinter.messagebox import showinfo
 
 class Appointments(tk.Frame):
     def __init__(self, master, session: Session, current_user: User):
@@ -22,11 +23,12 @@ class Appointments(tk.Frame):
         ttk.Label(frame, text="Appointment System", font=("Arial", 24, 'bold')).pack(pady=10)
         
         # Treeview to display appointments
-        self.appointments_tree = ttk.Treeview(frame, columns=("id", "datetime", "reason", "patient"), show="headings")
+        self.appointments_tree = ttk.Treeview(frame, columns=("id", "datetime", "reason", "patient", "status"), show="headings")
         self.appointments_tree.heading("id", text="ID")
         self.appointments_tree.heading("datetime", text="Date/Time")
         self.appointments_tree.heading("reason", text="Reason")
         self.appointments_tree.heading("patient", text="Patient")
+        self.appointments_tree.heading("status", text="Status")
         self.appointments_tree.pack(pady=10, fill=tk.BOTH, expand=True)
 
         # Frame for the action buttons
@@ -34,8 +36,8 @@ class Appointments(tk.Frame):
         button_frame.pack()
         buttons = [
             ttk.Button(button_frame, text="Schedule New Appointment", command=lambda: switch_to_window("create_appointment", onCreateArgs=(current_user,))),
-            ttk.Button(button_frame, text="Reschedule Selected Appointment", command=self.reschedule_appointment),
-            ttk.Button(button_frame, text="Cancel Selected Appointment", command=self.cancel_appointment)
+            ttk.Button(button_frame, text="Reschedule Selected Appointment", command=self.EditAppointment),
+            ttk.Button(button_frame, text="Cancel Selected Appointment", command=self.CancelAppointment)
         ]
 
         i = 0
@@ -62,7 +64,7 @@ class Appointments(tk.Frame):
 
         for appt in appointments:
             patient = self.session.query(User).filter_by(uuid=appt.patient_id).first()
-            self.appointments_tree.insert("", "end", values=(patient.uuid, appt.scheduled_time.strftime("%Y-%m-%d %H:%M"), appt.reason, patient.full_name))
+            self.appointments_tree.insert("", "end", values=(appt.id, appt.scheduled_time.strftime("%Y-%m-%d %H:%M"), appt.reason, patient.full_name, appt.status.value))
 
     def refresh_appointments(self):
         for item in self.appointments_tree.get_children():
@@ -95,31 +97,39 @@ class Appointments(tk.Frame):
         self.reason_entry.delete(0, tk.END)
         self.datetime_entry.delete(0, tk.END)
 
-    def reschedule_appointment(self):
-        selected = self.appointments_tree.focus()
-        if not selected:
-            messagebox.showwarning("Warning", "Select an appointment to reschedule.")
-            return
-        appt_id = self.appointments_tree.item(selected)['values'][0]
-        appt = self.session.query(Appointment).filter_by(id=appt_id).first()
-        self._open_appointment_window("Reschedule Appointment", appt)
+    def EditAppointment(self):
+        if self.appointments_tree:
+            selection = self.appointments_tree.selection()
+            if not selection:
+                showinfo("Alert", "There is nothing selected.")
+                return
+            
+            selectedItem = self.appointments_tree.item(selection[0])["values"]
+            appt = self.session.query(models.Appointment).where(models.Appointment.id == selectedItem[0]).one_or_none()
+            switch_to_window('create_appointment', onCreateArgs=(self.current_user, appt))
+        
 
-    def cancel_appointment(self):
-        selected = self.appointments_tree.focus()
-        if not selected:
-            messagebox.showinfo("No selection", "Select an appointment to cancel")
-            return
-
-        appt_id = self.appointments_tree.item(selected)['values'][0]
-        appt = self.session.query(Appointment).filter_by(id=appt_id).first()
-
-        # if self.current_user.role != models.UserRole.NURSE and appt.patient_id != self.current_user.uuid:
-        #     messagebox.showerror("Unauthorized", "You can only cancel your own appointments")
-        #     return
-
-        self.session.delete(appt)
-        self.session.commit()
-        self.LoadTable()
+    def CancelAppointment(self):
+        if self.appointments_tree:
+            selection = self.appointments_tree.selection()
+            
+            if not selection:
+                return
+            
+            try:
+                selectedItem = self.appointments_tree.item(selection[0])["values"]
+                
+                appt = self.session.query(models.Appointment).where(models.Appointment.id == selectedItem[0]).one_or_none()
+                
+                if appt:
+                    self.session.delete(appt)
+                    self.session.commit()
+                    
+                showinfo("Alert", "Successfully cancelled appointment.")
+                self.LoadTable()
+            except Exception as e:
+                print(f"Error: {e}")
+                showinfo("Alert", "Failed to delete appointment.")
 
     def _open_appointment_window(self, title, appointment=None):
         win = tk.Toplevel(self)

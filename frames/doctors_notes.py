@@ -101,6 +101,7 @@ class DoctorsNotes(tk.Frame):
         if self.tree:
             selection = self.tree.selection()
             if not selection:
+                showinfo("Alert", "There is nothing selected.")
                 return
             
             selectedItem = self.tree.item(selection[0])["values"]

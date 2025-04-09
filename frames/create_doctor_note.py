@@ -15,7 +15,7 @@ entry_font = ("Arial", 12)
 class CreateDoctorNote(tk.Frame):
     note_to_edit: models.DoctorNote = None
     
-    def __init__(self, master, session, dbManager: DatabaseManager, current_user, note: models.DoctorNote = None):
+    def __init__(self, master, session, dbManager: DatabaseManager, current_user, note_to_edit: models.DoctorNote = None):
         super().__init__(master)
         self.session: Session = session
         self.current_user: User = current_user
@@ -25,8 +25,11 @@ class CreateDoctorNote(tk.Frame):
         frame.pack(padx=15, pady=15)
 
         # Title
-        ttk.Label(frame, text="CREATE DOCTOR'S NOTE", font=("Arial", 18, 'bold')).grid(row=0, column=0, columnspan=2, pady=(0, 20))
-
+        if not note_to_edit:
+            ttk.Label(frame, text="CREATE DOCTOR'S NOTE", font=("Arial", 18, 'bold')).grid(row=0, column=0, columnspan=2, pady=(0, 20))
+        else:
+            ttk.Label(frame, text="EDIT DOCTOR'S NOTE", font=("Arial", 18, 'bold')).grid(row=0, column=0, columnspan=2, pady=(0, 20))
+            
         # Patient Dropdown Label
         ttk.Label(frame, text="PATIENT NAME", font=entry_font).grid(row=1, column=0, sticky='w', padx=5)
 
@@ -68,13 +71,13 @@ class CreateDoctorNote(tk.Frame):
         frame.grid_columnconfigure(1, weight=1)
         
         # Set original values if editing
-        if note:
-            original_patient = dbManager.get_user(note.patient_id)
+        if note_to_edit:
+            original_patient = dbManager.get_user(note_to_edit.patient_id)
             self.patient_dropdown.set(f"{original_patient.full_name} (ID: {original_patient.uuid})")
             self.patient_dropdown.configure(state="disabled")
-            self.note_text.set_text(note.note)
+            self.note_text.set_text(note_to_edit.note)
             
-            self.note_to_edit = note
+            self.note_to_edit = note_to_edit
 
     def submit_note(self):
         try:
