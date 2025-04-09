@@ -123,13 +123,7 @@ class CreateAppointment(tk.Frame):
             created_by_id = self.current_user.uuid
 
             date_time: datetime.datetime = datetime.datetime.combine(date=date, time=time)
-
-
-            print(f"User_id: {patient_id}")
-            print(f"Date_time: {date_time}")
-            print(f"Reason: {reason}")
-            print(f"Created_by_id: {created_by_id}")
-
+            
             new_appointment = Appointment(
                 patient_id,
                 date_time,
@@ -142,6 +136,7 @@ class CreateAppointment(tk.Frame):
             
             showinfo("Alert", "Appointment successfully created!")
         except Exception as e:
+            self.session.rollback()
             print(f"Database error: {e}")
             showinfo("Error", "Unable to create appointment.")
 

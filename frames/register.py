@@ -32,6 +32,8 @@ class Register(tk.Frame):
         # Validate contents
         username = self.ent_username.get_text().strip()
         password = self.ent_password.get_text().strip()
+        security_question = self.ent_security_question.get_text().strip()
+        security_answer = self.ent_security_answer.get_text().strip()
         full_name = self.ent_name.get_text().strip()
         contact_info = self.ent_contact.get_text().strip()
         age = self.ent_age.get()
@@ -42,7 +44,7 @@ class Register(tk.Frame):
         diseases = self.ent_diseases.get().strip()      # Add `.strip()` to clean up input
 
         # Validation checks
-        if not username or not password or not full_name:
+        if not username or not password or not full_name or not security_question or not security_answer:
             showinfo("Alert", 'Missing required fields.')
             return
 
@@ -60,6 +62,8 @@ class Register(tk.Frame):
         new_user = models.User(
             username=username,
             password=password,
+            security_question=security_question,
+            security_answer=security_answer,
             role=models.UserRole(role.upper()),
             full_name=full_name,
             age=int(age),
@@ -89,6 +93,7 @@ class Register(tk.Frame):
             showinfo("Alert", "User and Patient creation successful.")
             switch_to_window('main_menu', onCreateArgs=(new_user,))
         except Exception as e:
+            self.session.rollback()
             print(f'Account creation error: {e}')
 
 
@@ -139,6 +144,27 @@ class Register(tk.Frame):
             text_color="black",
         )
         self.ent_password.grid(row=4, column=0, ipady=7.5, ipadx=30)
+
+        self.ent_security_question = PlaceholderEntry(
+            frame,
+            normal_font=entry_font,
+            placeholder_font=entry_font,
+            placeholder_text="Security Question",
+            placeholder_color="#bfbfbf",
+            text_color="black",
+        )
+        self.ent_security_question.grid(row=5, column=0, ipady=7.5, ipadx=30)
+
+        self.ent_security_answer = PlaceholderEntry(
+            frame,
+            normal_font=entry_font,
+            placeholder_font=entry_font,
+            placeholder_text="Security Answer",
+            placeholder_color="#bfbfbf",
+            text_color="black",
+        )
+        self.ent_security_answer.grid(row=6, column=0, ipady=7.5, ipadx=30)
+
 
         # ACCOUNT COLUMN
         ttk.Label(frame, text="Account Details", font=entry_font).grid(
@@ -237,7 +263,7 @@ class Register(tk.Frame):
             padding=(330, 12.5),
             command=self.register_account,
         )
-        self.btn_register.grid(row=6, columnspan=3, pady=(50,10))
+        self.btn_register.grid(row=7, columnspan=3, pady=(50,10))
 
         frame.pack(padx=15, pady=15)
 

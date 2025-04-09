@@ -22,15 +22,15 @@ class User(Base):
     uuid: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
     password_hash: Mapped[str] = mapped_column(String(60), nullable=False)
-
+    security_question: Mapped[str] = mapped_column(String(255), nullable=False)
+    security_answer_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    
     # Additional Fields
     role: Mapped[UserRole] = mapped_column(Enum(UserRole), nullable=True)
     full_name: Mapped[str] = mapped_column(String(100), nullable=True)
     age: Mapped[int] = mapped_column(nullable=True)
     gender: Mapped[str] = mapped_column(String(10), nullable=True)
     contact_info: Mapped[str] = mapped_column(String(255), nullable=True)
-    security_question: Mapped[str] = mapped_column(String(255), nullable=True)
-    security_answer_hash: Mapped[str] = mapped_column(String(255), nullable=True)
 
     # Relationships
     appointments: Mapped[list["Appointment"]] = relationship(
@@ -48,11 +48,19 @@ class User(Base):
 
     def check_password(self, password: str):
         return bcrypt.checkpw(password.encode(), self.password_hash.encode())
+    
+    def set_security_answer(self, answer: str):
+        self.security_answer_hash = bcrypt.hashpw(answer.encode(), bcrypt.gensalt()).decode()
 
-    def __init__(self, username: str, password: str, role: str, full_name: str, age: int, gender: str, contact_info: str):
+    def check_security_answer(self, answer: str):
+        return bcrypt.checkpw(answer.encode(), self.security_answer_hash.encode())
+
+    def __init__(self, username: str, password: str, security_question: str, security_answer: str, role: str, full_name: str, age: int, gender: str, contact_info: str):
         super().__init__()
         self.username = username
         self.set_password(password)
+        self.security_question = security_question
+        self.set_security_answer(security_answer)
         self.role = role
         self.full_name = full_name
         self.age = age
@@ -67,7 +75,8 @@ class User(Base):
 class Appointment(Base):
     __tablename__ = "appointment"
 
-    patient_id: Mapped[int] = mapped_column(ForeignKey("user.uuid"), primary_key=True, nullable=False)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    patient_id: Mapped[int] = mapped_column(ForeignKey("user.uuid"), nullable=False)
     scheduled_time: Mapped[datetime.datetime] = mapped_column(nullable=False)
     reason: Mapped[str] = mapped_column(Text)
     created_by_id: Mapped[int] = mapped_column(ForeignKey("user.uuid"))
