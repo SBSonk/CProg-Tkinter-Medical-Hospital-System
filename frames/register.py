@@ -29,78 +29,37 @@ class Register(tk.Frame):
             self.disable_patient_form()
 
     def register_account(self):
-        # Validate contents
-        username = self.ent_username.get_text().strip()
-        password = self.ent_password.get_text().strip()
-        security_question = self.ent_security_question.get_text().strip()
-        security_answer = self.ent_security_answer.get_text().strip()
-        full_name = self.ent_name.get_text().strip()
-        contact_info = self.ent_contact.get_text().strip()
-        age = self.ent_age.get()
-        gender = self.gender_var.get()
-        role: str = self.cmb_role.get()
-        treatments = self.ent_treatments.get().strip()  # Add `.strip()` to clean up input
-        allergies = self.ent_allergies.get().strip()    # Add `.strip()` to clean up input
-        diseases = self.ent_diseases.get().strip()      # Add `.strip()` to clean up input
+        if self.user_to_edit:
+            # Update logic
+            u = self.user_to_edit
+            u.role = models.UserRole(self.cmb_role.get())
+            u.full_name = self.ent_name.get_text().strip()
+            u.age = int(self.ent_age.get())
+            u.gender = self.gender_var.get()
+            u.contact_info = self.ent_contact.get_text().strip()
 
-        # Validation checks
-        if not username or not password or not full_name or not security_question or not security_answer:
-            showinfo("Alert", 'Missing required fields.')
-            return
+            if u.role == models.UserRole.PATIENT:
+                patient = self.session.query(models.Patient).filter_by(user_id=u.uuid).first()
+                if not patient:
+                    patient = models.Patient(user_id=u.uuid)
+                    self.session.add(patient)
+                patient.diseases = self.ent_diseases.get().strip()
+                patient.allergies = self.ent_allergies.get().strip()
+                patient.treatments = self.ent_treatments.get().strip()
 
-        if len(password) < 6:  # Enforce password length
-            showinfo("Alert", "Password must be at least 6 characters long.")
-            return
-
-        # Check if the username already exists in the database
-        existing_user = self.session.query(models.User).filter(models.User.username == username).first()
-        if existing_user:
-            showinfo("Alert", "Username already exists. Please choose a different username.")
-            return
-
-        # Create the new user object
-        new_user = models.User(
-            username=username,
-            password=password,
-            security_question=security_question,
-            security_answer=security_answer,
-            role=models.UserRole(role.upper()),
-            full_name=full_name,
-            age=int(age),
-            gender=gender,
-            contact_info=contact_info
-        )
-
-        # Attempt to save the user to the database
-        try:
-            self.session.add(new_user)
             self.session.commit()
+            showinfo("Alert", "User updated successfully!")
+        else:
+            self.register_account()  # Original logic
+            showinfo("Alert", "User created successfully!")
 
-            # Now create the Patient record using the user_id (foreign key) only IF PATIENT
-            if new_user.role == models.UserRole.PATIENT:
-                new_patient = models.Patient(
-                    user_id=new_user.uuid,  # Link Patient to the newly created User
-                    treatments=treatments,
-                    allergies=allergies,
-                    diseases=diseases
-                )
-                
-                # Add the Patient to the session
-                self.session.add(new_patient)
-                self.session.commit()
-
-            # Success message
-            showinfo("Alert", "User and Patient creation successful.")
-            switch_to_window("main_menu", onCreateArgs=(current_user,))
-        except Exception as e:
-            self.session.rollback()
-            print(f'Account creation error: {e}')
-
-
-    def __init__(self, master, session: Session, current_user):
+        switch_to_window("user_account_module", onCreateArgs=(self.current_user,))
+        
+    def __init__(self, master, session: Session, current_user, user_to_edit: models.User = None):
         super().__init__(master)
         self.session = session
         self.current_user = current_user
+        self.user_to_edit = user_to_edit
 
         frame = tk.Frame(self)
 
@@ -110,9 +69,14 @@ class Register(tk.Frame):
         back_button = ttk.Button(frame, text="Back", command=self.go_back)
         back_button.grid(row=1, column=0, pady=10, sticky='nw')
 
-        ttk.Label(frame, text="Create New User", font=("Arial", 24, 'bold')).grid(
+        if user_to_edit:
+            ttk.Label(frame, text="Edit User", font=("Arial", 24, 'bold')).grid(
             row=0, column=1, pady=10
-        )
+            )
+        else:
+            ttk.Label(frame, text="Create New User", font=("Arial", 24, 'bold')).grid(
+                row=0, column=1, pady=10
+            )
 
         # USER COLUMN
         ttk.Label(frame, text="User Details", font=entry_font).grid(
@@ -258,15 +222,41 @@ class Register(tk.Frame):
         self.patient_form_elements = patient_form_elements
         self.disable_patient_form()
 
+        save_text = "Create Account" if not user_to_edit else "Save Changes"
         self.btn_register = ttk.Button(
             frame,
-            text="Create Account",
+            text=save_text,
             padding=(330, 12.5),
             command=self.register_account,
         )
         self.btn_register.grid(row=7, columnspan=3, pady=(50,10))
 
         frame.pack(padx=15, pady=15)
+        
+        if self.user_to_edit:
+            self.populate_fields()
+
+    def populate_fields(self):
+        self.ent_security_question.set_disabled(True)
+        self.ent_security_answer.set_disabled(True)
+        self.ent_password.set_disabled(True)
+        
+        u = self.user_to_edit
+        self.ent_username.set_text(u.username)
+        self.ent_username.config(state='disabled')  # can't change username
+        self.cmb_role.set(u.role.value)
+        self.ent_name.set_text(u.full_name)
+        self.ent_age.set(u.age)
+        self.gender_var.set(u.gender)
+        self.ent_contact.set_text(u.contact_info)
+
+        if u.role == models.UserRole.PATIENT:
+            patient = self.session.query(models.Patient).filter_by(user_id=u.uuid).first()
+            if patient:
+                self.ent_diseases.set_text(patient.diseases)
+                self.ent_allergies.set_text(patient.allergies)
+                self.ent_treatments.set_text(patient.treatments)
+            self.enable_patient_form()
 
     def go_back(self):
         switch_to_window("user_account_module", onCreateArgs=(self.current_user,))

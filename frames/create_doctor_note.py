@@ -64,7 +64,8 @@ class CreateDoctorNote(tk.Frame):
         self.note_text.grid(row=3, column=0, columnspan=2, pady=(0, 20), padx=5)
 
         # Submit Button
-        self.submit_btn = ttk.Button(frame, text="Submit", command=self.submit_note, padding=(330, 12.5))
+        save_text = "Create Note" if not note_to_edit else "Save Changes"
+        self.submit_btn = ttk.Button(frame, text=save_text, command=self.submit_note, padding=(330, 12.5))
         self.submit_btn.grid(row=7, columnspan=2, pady=(50,10), sticky='ew')
 
         self.back_btn = ttk.Button(frame, text="Back", command=self.go_to_doctors_notes, padding=(330, 12.5))
