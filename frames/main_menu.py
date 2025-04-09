@@ -82,23 +82,20 @@ class MainMenu(tk.Frame):
         logout_button.pack(anchor="e", pady=(0, 10))
 
     def goto_appointments(self):
-        if self.current_user.role == models.UserRole.PATIENT:
-            switch_to_window("appointment_patient", onCreateArgs=(self.session, self.current_user))
-        else:
-            switch_to_window("appointment_nurse", onCreateArgs=(self.session, self.current_user))
+        switch_to_window("appointments", onCreateArgs=(self.current_user,))
 
     def goto_user_management(self):
-        switch_to_window("user_account_module", onCreateArgs=(self.session, self.current_user))
+        switch_to_window("user_account_module", onCreateArgs=(self.current_user,))
 
     def goto_patient_list(self):
-        switch_to_window("patient_info_module", onCreateArgs=(self.session, self.current_user))
+        switch_to_window("patient_info_module", onCreateArgs=(self.current_user,))
         
     def goto_doctor_notes(self):
         switch_to_window("doctors_notes", onCreateArgs=(self.current_user,))
 
     def goto_maintenance(self):
         if self.current_user.role == models.UserRole.ADMIN:
-            switch_to_window("record_maintenance_menu", onCreateArgs=(self.session, self.current_user))
+            switch_to_window("record_maintenance_menu", onCreateArgs=(self.current_user,))
 
     def goto_register(self):
         switch_to_window("register")

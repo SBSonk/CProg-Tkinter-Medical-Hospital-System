@@ -6,7 +6,7 @@ from models import Appointment, User, UserRole
 from datetime import datetime
 from window_manager import switch_to_window
 
-class AppointmentNurse(tk.Frame):
+class Appointments(tk.Frame):
     def __init__(self, master, session: Session, current_user: User):
         super().__init__(master)
         self.session = session
@@ -16,47 +16,46 @@ class AppointmentNurse(tk.Frame):
         self.reason_entry = None
         self.datetime_entry = None
 
-        ttk.Label(self, text="Appointment Scheduler", font=("Arial", 20)).pack(pady=10)
+        frame = ttk.Frame(self)
+        frame.pack(padx=15, pady=15)
 
-        form_frame = ttk.Frame(self)
-        form_frame.pack(pady=10)
-
-        ttk.Label(form_frame, text="Reason:").grid(row=0, column=0, padx=5, pady=5)
-        self.reason_entry = ttk.Entry(form_frame)
-        self.reason_entry.grid(row=0, column=1, padx=5, pady=5)
-
-        ttk.Label(form_frame, text="DateTime (YYYY-MM-DD HH:MM):").grid(row=1, column=0, padx=5, pady=5)
-        self.datetime_entry = ttk.Entry(form_frame)
-        self.datetime_entry.grid(row=1, column=1, padx=5, pady=5)
-
-        #ttk.Button(form_frame, text="Schedule Appointment", command=self.schedule_appointment).grid(row=2, columnspan=2, pady=10)
-        #ttk.Button(self, text="Reschedule Selected Appointment", command=self.reschedule_appointment).pack(pady=10)
-        ttk.Button(self, text="Schedule New Appointment", command=lambda: switch_to_window("create_appointment", onCreateArgs=(current_user,))).pack(pady=10)
-
-        self.appointments_tree = ttk.Treeview(self, columns=("id", "datetime", "reason", "patient"), show="headings")
+        ttk.Label(frame, text="Appointment System", font=("Arial", 24, 'bold')).pack(pady=10)
+        
+        # Treeview to display appointments
+        self.appointments_tree = ttk.Treeview(frame, columns=("id", "datetime", "reason", "patient"), show="headings")
         self.appointments_tree.heading("id", text="ID")
         self.appointments_tree.heading("datetime", text="Date/Time")
         self.appointments_tree.heading("reason", text="Reason")
         self.appointments_tree.heading("patient", text="Patient")
         self.appointments_tree.pack(pady=10, fill=tk.BOTH, expand=True)
 
-        action_frame = ttk.Frame(self)
-        action_frame.pack(pady=10)
+        # Frame for the action buttons
+        button_frame = tk.Frame(frame)
+        button_frame.pack()
+        buttons = [
+            ttk.Button(button_frame, text="Schedule New Appointment", command=lambda: switch_to_window("create_appointment", onCreateArgs=(current_user,))),
+            ttk.Button(button_frame, text="Reschedule Selected Appointment", command=self.reschedule_appointment),
+            ttk.Button(button_frame, text="Cancel Selected Appointment", command=self.cancel_appointment)
+        ]
 
+        i = 0
+        for b in buttons:
+            b.grid(row=0, column=i)
+            i += 1
         
-        ttk.Button(action_frame, text="Reschedule Selected Appointment", command=self.reschedule_appointment).grid(row=0, column=1, padx=5)
+        # Button to go back to the main menu
+        ttk.Button(frame, text="Back to Main Menu", width=30,
+                   command=lambda: switch_to_window("main_menu", onCreateArgs=(current_user,))).pack(pady=20)
+                
+        # Load appointments into the table
+        self.LoadTable()
 
-        ttk.Button(action_frame, text="Cancel Selected Appointment", command=self.cancel_appointment).grid(row=0, column=2, padx=5)
 
-        ttk.Button(self, text="Back", command=lambda: switch_to_window("main_menu", onCreateArgs=(current_user,))).pack(pady=10)
-
-        self.load_appointments()
-
-    def load_appointments(self):
+    def LoadTable(self):
         for row in self.appointments_tree.get_children():
             self.appointments_tree.delete(row)
 
-        if self.current_user.role == UserRole.NURSE:
+        if self.current_user.role != UserRole.PATIENT:
             appointments = self.session.query(Appointment).all()
         else:
             appointments = self.session.query(Appointment).filter_by(patient_id=self.current_user.uuid).all()
@@ -92,7 +91,7 @@ class AppointmentNurse(tk.Frame):
 
         self.session.add(new_appointment)
         self.session.commit()
-        self.load_appointments()
+        self.LoadTable()
         self.reason_entry.delete(0, tk.END)
         self.datetime_entry.delete(0, tk.END)
 
@@ -120,7 +119,7 @@ class AppointmentNurse(tk.Frame):
 
         self.session.delete(appt)
         self.session.commit()
-        self.load_appointments()
+        self.LoadTable()
 
     def _open_appointment_window(self, title, appointment=None):
         win = tk.Toplevel(self)

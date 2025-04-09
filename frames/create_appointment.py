@@ -17,6 +17,7 @@ class CreateAppointment(tk.Frame):
         super().__init__(master)
         self.session: Session = session
         self.current_user: User = current_user
+        self.dbManager = dbManager
 
         frame = tk.Frame(self)
         frame.pack(padx=15, pady=15)
@@ -27,25 +28,26 @@ class CreateAppointment(tk.Frame):
         # Dropdown
         ttk.Label(frame, text="Select User:", font=entry_font).grid(row=1, column=0, sticky="w")
         self.patient_var = tk.StringVar()
-        self.type_dropdown = ttk.Combobox(frame, textvariable=self.patient_var, state="readonly", font=entry_font)
+        self.patient_dropdown = ttk.Combobox(frame, textvariable=self.patient_var, state="readonly", font=entry_font)
         
         # Replace with patients
-        all_patients = dbManager.get_all_users()
-        all_patients = filter(lambda x: x.role == UserRole.PATIENT, all_patients)
+        all_patients = self.dbManager.get_all_users() 
+        all_patients = filter(lambda p: p.role == models.UserRole.PATIENT, all_patients)
         
         self.patient_user_dropdown_values = { }
         
         for p in all_patients:
-            self.patient_user_dropdown_values[f"{current_user.full_name} (ID: {current_user.uuid})"] = p.uuid
+            print(p.full_name)
+            self.patient_user_dropdown_values[f"{p.full_name} (ID: {p.uuid})"] = p.uuid
         
         dropdown_keys = list(self.patient_user_dropdown_values.keys())
-        self.type_dropdown['values'] = dropdown_keys
-        self.type_dropdown.set(dropdown_keys[0])
-        self.type_dropdown.grid(row=2, column=0, sticky="ew", padx=(0, 10))
+        self.patient_dropdown['values'] = dropdown_keys
+        self.patient_dropdown.set(dropdown_keys[0])
+        self.patient_dropdown.grid(row=2, column=0, sticky="ew", padx=(0, 10))
 
         if self.current_user.role == models.UserRole.PATIENT:
-            self.type_dropdown.set(f"{current_user.full_name} (ID: {current_user.uuid})")
-            self.type_dropdown.config(state="disabled")
+            self.patient_dropdown.set(f"{current_user.full_name} (ID: {current_user.uuid})")
+            self.patient_dropdown.config(state="disabled")
 
         # Date Picker
         ttk.Label(frame, text="Date:", font=entry_font).grid(row=3, column=0, sticky="w")
@@ -100,7 +102,7 @@ class CreateAppointment(tk.Frame):
         self.submit_btn.grid(row=7, columnspan=2, pady=(50,10), sticky='ew')
         
         self.submit_btn = ttk.Button(frame, text="Back", command=self.goto_appointments, padding=(330, 12.5))
-        self.submit_btn.grid(row=8, columnspan=2, pady=(50,10), sticky='ew')
+        self.submit_btn.grid(row=8, columnspan=2, pady=(0,10), sticky='ew')
 
         frame.grid_columnconfigure(0, weight=0)
         frame.grid_columnconfigure(1, weight=1)
@@ -134,6 +136,7 @@ class CreateAppointment(tk.Frame):
             self.session.commit()
             
             showinfo("Alert", "Appointment successfully created!")
+            switch_to_window('appointments', onCreateArgs=(self.current_user, ))
         except Exception as e:
             self.session.rollback()
             print(f"Database error: {e}")
@@ -141,7 +144,5 @@ class CreateAppointment(tk.Frame):
 
     def goto_appointments(self):
         print(self.current_user)
-        if self.current_user.role == models.UserRole.PATIENT:
-            switch_to_window("appointment_patient", onCreateArgs=(self.session, self.current_user))
-        elif self.current_user.role == models.UserRole.NURSE:
-            switch_to_window("appointment_nurse", onCreateArgs=(self.session, self.current_user))
+        switch_to_window("appointments", onCreateArgs=(self.session, self.current_user))
+        

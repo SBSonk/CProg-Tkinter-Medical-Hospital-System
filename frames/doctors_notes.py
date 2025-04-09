@@ -64,7 +64,7 @@ class DoctorsNotes(tk.Frame):
                 b.grid(row=0, column=i)
                 i += 1
                 
-        ttk.Button(self, text="Back to Main Menu", width=30,
+        ttk.Button(frame, text="Back to Main Menu", width=30,
                    command=lambda: switch_to_window("main_menu", onCreateArgs=(current_user,))).pack(pady=20)
                 
         self.tree = tree
