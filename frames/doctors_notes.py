@@ -58,8 +58,11 @@ class DoctorsNotes(tk.Frame):
                 ttk.Button(button_frame, text="Edit Note", command=self.EditNote),
                 ttk.Button(button_frame, text="Delete Note", command=self.DeleteNote)
             ]
-            
-            i = 0
+    
+            ttk.Button(self, text="Back to Main Menu", width=30,
+                   command=lambda: switch_to_window("main_menu", onCreateArgs=(current_user,))).pack(pady=20)
+        
+        i = 0
             for b in buttons:
                 b.grid(row=0, column=i)
                 i += 1
