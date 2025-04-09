@@ -13,6 +13,7 @@ from database import DatabaseManager
 entry_font = ("Arial", 12)
 
 class CreateAppointment(tk.Frame):
+    appointment_to_edit = None
     def __init__(self, master, session, dbManager: DatabaseManager, current_user, appointment_to_edit: models.Appointment = None):
         super().__init__(master)
         self.session: Session = session

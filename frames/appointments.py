@@ -109,7 +109,7 @@ class Appointments(tk.Frame):
                 if appt:
                     # Make sure the status enum has "COMPLETED"
                     from models import AppointmentStatus
-                    appt.status = AppointmentStatus.COMPLETED
+                    appt.status = AppointmentStatus.FINISHED
                     self.session.commit()
                     showinfo("Success", "Appointment marked as completed.")
                     self.LoadTable()

@@ -42,7 +42,7 @@ def seed_initial_data():
             full_name="Nurse Joy",
             security_question="First pet's name?",
             security_answer="Meowth",
-            role=models.UserRole.NURSE,
+            role=models.UserRole.ADMIN,
             age=30,
             gender="female",
             contact_info="123-456-7890"
