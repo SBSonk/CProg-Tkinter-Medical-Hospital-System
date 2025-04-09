@@ -29,7 +29,7 @@ current_user = {"user": None}  # Holds the logged-in user
 def main():
     add_window("login", frames.login.Login, (session, current_user))
     add_window("forget_password", frames.forget_password.ForgetPassword, (dbManager,))
-    add_window("reset_password", frames.reset_password.ResetPassword)
+    add_window("reset_password", frames.reset_password.ResetPassword, (session,))
     
     add_window("register", frames.register.Register, (session,))
     add_window("create_appointment", frames.create_appointment.CreateAppointment, (session, dbManager))
@@ -43,8 +43,8 @@ def main():
     add_window("patient_info_module", frames.patient_info_module.PatientInfoModule)
 
     # create as nurse joy
-    switch_to_window("create_appointment", onCreateArgs=(dbManager.get_user(1),))
-    # switch_to_window("landing")
+    # switch_to_window("create_appointment", onCreateArgs=(dbManager.get_user(1),))
+    switch_to_window("landing")
 
 if __name__ == "__main__":
     main()
