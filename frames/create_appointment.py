@@ -4,14 +4,15 @@ from tkcalendar import DateEntry
 import datetime
 from window_manager import switch_to_window
 from sqlalchemy.orm import Session
-from models import Appointment, User
+from models import Appointment, User, UserRole
 from tkinter.messagebox import showinfo
 from custom_widgets import PlaceholderText
+from database import DatabaseManager
 
 entry_font = ("Arial", 12)
 
 class CreateAppointment(tk.Frame):
-    def __init__(self, master, session, current_user):
+    def __init__(self, master, session, dbManager: DatabaseManager, current_user):
         super().__init__(master)
         self.session: Session = session
         self.current_user: User = current_user
@@ -27,11 +28,16 @@ class CreateAppointment(tk.Frame):
         self.patient_var = tk.StringVar()
         self.type_dropdown = ttk.Combobox(frame, textvariable=self.patient_var, state="readonly", font=entry_font)
         
-        # Replace with users
-        self.user_dropdown_values = {
-            "Pablo": 3,
-        }
-        dropdown_keys = list(self.user_dropdown_values.keys())
+        # Replace with patients
+        all_patients = dbManager.get_all_users()
+        all_patients = filter(lambda x: x.role == UserRole.PATIENT, all_patients)
+        
+        self.patient_user_dropdown_values = { }
+        
+        for p in all_patients:
+            self.patient_user_dropdown_values[p.full_name] = p.uuid
+        
+        dropdown_keys = list(self.patient_user_dropdown_values.keys())
         self.type_dropdown['values'] = dropdown_keys
         self.type_dropdown.set(dropdown_keys[0])
         self.type_dropdown.grid(row=2, column=0, sticky="ew", padx=(0, 10))
@@ -94,7 +100,7 @@ class CreateAppointment(tk.Frame):
 
     def submit_appointment(self):
         try:
-            patient_id = self.user_dropdown_values[self.patient_var.get()]
+            patient_id = self.patient_user_dropdown_values[self.patient_var.get()]
             
             date = self.date_picker.get_date()
             

@@ -12,27 +12,34 @@ class PlaceholderEntry(ttk.Entry):
     placeholder_font = ()
     placeholder_color='gray'
 
-    def focus_in(self, event):
-        if self.disabled:
-            return
-        
-        if self.get() == self.placeholder_text:
-            self.delete(0, 'end')
-            self.configure(font=self.normal_font, foreground=self.text_color)
-
-            if self.is_password:
-                self.configure(show="*")
-                
-    def focus_out(self, event):
-        if self.disabled:
-            return
-        
+    def insertPlaceholder(self):
         if self.get() == "":
             self.insert(0, self.placeholder_text)
             self.configure(foreground=self.placeholder_color)
 
             if self.is_password:
                 self.configure(show="")
+                
+    def removePlaceholder(self):
+        if self.get() == self.placeholder_text:
+            self.delete(0, 'end')
+            self.configure(font=self.normal_font, foreground=self.text_color)
+
+            if self.is_password:
+                self.configure(show="*")
+
+    def focus_in(self, event):
+        if self.disabled:
+            return
+        
+        self.removePlaceholder()
+                
+    def focus_out(self, event):
+        if self.disabled:
+            return
+        
+        self.insertPlaceholder()
+        
     
     def get_text(self):
         text = super().get()
@@ -71,6 +78,8 @@ class PlaceholderEntry(ttk.Entry):
         
         self.bind('<FocusIn>', self.focus_in)
         self.bind('<FocusOut>', self.focus_out)
+        
+        self.insertPlaceholder()
 
 class PlaceholderText(tk.Text):
     def __init__(

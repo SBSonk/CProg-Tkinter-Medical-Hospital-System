@@ -21,7 +21,7 @@ from database import DatabaseManager
 engine = create_engine("sqlite:///hospital.db", echo=False)
 models.Base.metadata.create_all(bind=engine)
 Session = sessionmaker(bind=engine)
-session: Session = Session()
+session = Session()
 dbManager: DatabaseManager = DatabaseManager(session)
 
 current_user = {"user": None}  # Holds the logged-in user
@@ -32,7 +32,7 @@ def main():
     add_window("reset_password", frames.reset_password.ResetPassword)
     
     add_window("register", frames.register.Register, (session,))
-    add_window("create_appointment", frames.create_appointment.CreateAppointment, (session,))
+    add_window("create_appointment", frames.create_appointment.CreateAppointment, (session, dbManager))
     
     add_window("main_menu", frames.main_menu.MainMenu, (session, ))
     add_window("appointment_patient", frames.appointment_patient.AppointmentPatient)
@@ -43,7 +43,8 @@ def main():
     add_window("patient_info_module", frames.patient_info_module.PatientInfoModule)
 
     # create as nurse joy
-    switch_to_window("create_appointment", onCreateArgs=(dbManager.get_user(4),))
+    switch_to_window("create_appointment", onCreateArgs=(dbManager.get_user(1),))
+    # switch_to_window("landing")
 
 if __name__ == "__main__":
     main()
