@@ -17,7 +17,7 @@ class LandingFrame(tk.Frame):
         logo_label.pack(pady=10)
 
         # Title
-        title_label = ttk.Label(frame, text="Welcome to our website! Please login to proceed.", font=("Arial", 24))
+        title_label = ttk.Label(frame, text="Welcome to our app! Please login to proceed.", font=("Arial", 24))
         title_label.pack(pady=20)
 
         # Login Button
