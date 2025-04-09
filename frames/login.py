@@ -6,7 +6,7 @@ from tkinter import ttk
 from tkinter.messagebox import showinfo
 from custom_widgets import PlaceholderEntry, HyperlinkLabel
 from window_manager import switch_to_window
-from tkinter.messagebox import showinfo
+from PIL import Image, ImageTk  # Importing PIL modules
 
 class Login(tk.Frame):
     ent_username: PlaceholderEntry = None
@@ -56,20 +56,37 @@ class Login(tk.Frame):
             if callable(self.login_fail):
                 self.login_fail()
 
-    def __init__(self, master, session: Session, login_success = None, login_fail = None):
+    def __init__(self, master, session: Session, login_success=None, login_fail=None):
         super().__init__(master)
         self.session = session
         self.login_success = login_success
         self.login_fail = login_fail
 
         frame = tk.Frame(self, width=384, height=540)
-        frame.grid_rowconfigure(0)
-        frame.grid_rowconfigure(1, pad=20)
-        frame.grid_rowconfigure(2, pad=20)
-        ttk.Label(frame, text='Login', font=('Arial', 24)).grid(row=0, column=0, sticky='w', pady=10)
+        frame.grid_rowconfigure(0, weight=1)
+        frame.grid_columnconfigure(0, weight=1)
+        frame.grid_columnconfigure(1, weight=3)
+        
+        # Left Column (Logo)
+        left_frame = tk.Frame(frame, width=150, height=540)
+        left_frame.grid(row=0, column=0, rowspan=6, padx=10)
+        
+        # Resize logo using PIL
+        logo_image = Image.open("icons/vcl.png")  # Open the image file
+        logo_image = logo_image.resize((200, 200), Image.Resampling.LANCZOS)
+        logo_image = ImageTk.PhotoImage(logo_image)  # Convert the resized image to a format Tkinter can use
+        
+        logo_label = tk.Label(left_frame, image=logo_image)
+        logo_label.image = logo_image  # Keep a reference to the image to avoid garbage collection
+        logo_label.pack(pady=50)  # Adjust padding as needed
 
-        # ttk.Label(fr_text, text='Username').pack(anchor='w')
-        self.ent_username = PlaceholderEntry(frame, 
+        # Right Column (Form Elements)
+        right_frame = tk.Frame(frame, width=234, height=540)
+        right_frame.grid(row=0, column=1, rowspan=6, padx=10)
+        
+        ttk.Label(right_frame, text='Login', font=('Arial', 24)).grid(row=0, column=0, sticky='w', pady=10)
+
+        self.ent_username = PlaceholderEntry(right_frame, 
                                              is_password=False, 
                                              normal_font=('Arial', 16), 
                                              placeholder_font=('Arial', 16), 
@@ -78,8 +95,7 @@ class Login(tk.Frame):
                                              text_color='black')
         self.ent_username.grid(row=1, column=0, ipady=7.5)
 
-        # ttk.Label(fr_text, text='Password').pack(anchor='w')
-        self.ent_password = PlaceholderEntry(frame, 
+        self.ent_password = PlaceholderEntry(right_frame, 
                                              is_password=True, 
                                              normal_font=('Arial', 16), 
                                              placeholder_font=('Arial', 16), 
@@ -88,16 +104,16 @@ class Login(tk.Frame):
                                              text_color='black')
         self.ent_password.grid(row=2, column=0, ipady=7.5)
 
-        HyperlinkLabel(frame, 
+        HyperlinkLabel(right_frame, 
                        text='Forgot Password?', 
                        on_click=lambda x: switch_to_window('forget_password'),
                        default_color='gray',
                        hover_color='black').grid(row=3, column=0, pady=0, sticky='w')
 
-        self.btn_login = ttk.Button(frame, text='Login', padding=(87.5, 12.5), command=self.login)
+        self.btn_login = ttk.Button(right_frame, text='Login', padding=(87.5, 12.5), command=self.login)
         self.btn_login.grid(row=4, column=0, pady=10)
 
-        back_button = ttk.Button(frame, text="Back", command=self.go_back)
+        back_button = ttk.Button(right_frame, text="Back", command=self.go_back)
         back_button.grid(row=5, column=0, pady=10, sticky='sw')
 
         frame.pack(padx=15, pady=15)
