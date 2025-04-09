@@ -55,7 +55,6 @@ class ResetPassword(tk.Frame):
         frame.grid_rowconfigure(3, pad=20)
         ttk.Label(frame, text=f'Reset password', font=('Arial', 24), justify=tk.CENTER).grid(row=0, column=0, columnspan=2, pady=10)
         
-        
         # Security Answer
         security_frame = tk.Frame(frame, pady=10)
         ttk.Label(security_frame, text=user_to_edit.security_question, font=('Arial', 16)).pack(pady=5)
