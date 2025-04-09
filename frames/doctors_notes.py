@@ -51,7 +51,7 @@ class DoctorsNotes(tk.Frame):
         
         # Buttons
         if self.current_user.role != UserRole.PATIENT:
-            button_frame = tk.Frame(frame)
+            button_frame = tk.Frame(frame, pady=10)
             button_frame.pack()
             buttons = [
                 ttk.Button(button_frame, text="Add Note", command=self.CreateNote),

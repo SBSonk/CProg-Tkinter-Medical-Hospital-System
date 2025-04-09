@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from models import User
 from window_manager import switch_to_window
+from tkinter.messagebox import showinfo
 
 class UserAccountModule(tk.Frame):
     def __init__(self, master, session, current_user):
@@ -27,7 +28,7 @@ class UserAccountModule(tk.Frame):
         button_frame.pack()
         buttons = [
             ttk.Button(button_frame, text="Register User", command=self.register_user),
-            ttk.Button(button_frame, text="Edit User", command=self.edit_user),
+            ttk.Button(button_frame, text="Edit User", command=self.EditUser),
             ttk.Button(button_frame, text="Delete User", command=self.delete_user)
         ]
 
@@ -54,39 +55,18 @@ class UserAccountModule(tk.Frame):
             item = self.tree.item(selected[0])
             self.selected_user = item["values"]
 
-    def edit_user(self):
-        if not self.selected_user:
-            messagebox.showwarning("Select User", "Please select a user to edit.")
-            return
-
-        edit_window = tk.Toplevel(self)
-        edit_window.title("Edit User")
-        edit_window.geometry("300x300")
-
-        user = self.session.query(User).filter_by(uuid=self.selected_user[0]).first()
-
-        fields = {
-            "Full Name": tk.StringVar(value=user.full_name),
-            "Username": tk.StringVar(value=user.username),
-            "Contact Info": tk.StringVar(value=user.contact_info),
-        }
-
-        row = 0
-        for label, var in fields.items():
-            ttk.Label(edit_window, text=label).grid(row=row, column=0, sticky="e", pady=5)
-            ttk.Entry(edit_window, textvariable=var).grid(row=row, column=1, pady=5)
-            row += 1
-
-        def save_changes():
-            user.full_name = fields["Full Name"].get()
-            user.username = fields["Username"].get()
-            user.contact_info = fields["Contact Info"].get()
-            self.session.commit()
-            self.load_users()
-            edit_window.destroy()
-
-        ttk.Button(edit_window, text="Save", command=save_changes).grid(row=row, column=0, columnspan=2, pady=10)
-
+    def EditUser(self):
+        if self.tree:
+            selection = self.tree.selection()
+            if not selection:
+                showinfo("Alert", "There is nothing selected.")
+                return
+            
+            selectedItem = self.tree.item(selection[0])["values"]
+            user = self.session.query(User).where(User.uuid == selectedItem[0]).one_or_none()
+            
+            switch_to_window('register', onCreateArgs=(self.current_user, user))
+        
     def delete_user(self):
         if not self.selected_user:
             messagebox.showwarning("Select User", "Please select a user to delete.")

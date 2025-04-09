@@ -47,6 +47,11 @@ class PlaceholderEntry(ttk.Entry):
         if text == self.placeholder_text:
             text = ""
         return text
+    
+    def set_text(self, text):
+        self.removePlaceholder()
+        self.delete(0, tk.END)
+        self.insert(0, text)
 
     def set_disabled(self, val):
         self.disabled = val
