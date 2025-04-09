@@ -13,7 +13,7 @@ from database import DatabaseManager
 entry_font = ("Arial", 12)
 
 class CreateAppointment(tk.Frame):
-    def __init__(self, master, session, dbManager: DatabaseManager, current_user):
+    def __init__(self, master, session, dbManager: DatabaseManager, current_user, appointment_to_edit: models.Appointment = None):
         super().__init__(master)
         self.session: Session = session
         self.current_user: User = current_user
@@ -23,8 +23,11 @@ class CreateAppointment(tk.Frame):
         frame.pack(padx=15, pady=15)
 
         # Title
-        ttk.Label(frame, text="CREATE NEW APPOINTMENT", font=("Arial", 18, 'bold')).grid(row=0, column=0, columnspan=2, pady=10)
-
+        if not appointment_to_edit:
+            ttk.Label(frame, text="CREATE NEW APPOINTMENT", font=("Arial", 18, 'bold')).grid(row=0, column=0, columnspan=2, pady=10)
+        else:
+            ttk.Label(frame, text="EDIT APPOINTMENT", font=("Arial", 18, 'bold')).grid(row=0, column=0, columnspan=2, pady=10)
+            
         # Dropdown
         ttk.Label(frame, text="Select User:", font=entry_font).grid(row=1, column=0, sticky="w")
         self.patient_var = tk.StringVar()
@@ -106,6 +109,34 @@ class CreateAppointment(tk.Frame):
 
         frame.grid_columnconfigure(0, weight=0)
         frame.grid_columnconfigure(1, weight=1)
+        
+        if appointment_to_edit:
+            original_patient = dbManager.get_user(appointment_to_edit.patient_id)
+            self.patient_dropdown.set(f"{original_patient.full_name} (ID: {original_patient.uuid})")
+            self.patient_dropdown.configure(state="disabled")
+            
+            self.reason_text.set_text(appointment_to_edit.reason)
+            
+            date_time = appointment_to_edit.scheduled_time
+            appointment_date = date_time.date()
+            appointment_time = date_time.time()
+            
+            # Set the date picker
+            self.date_picker.set_date(appointment_date)
+            
+            # Set the hour, minute, and AM/PM values
+            appointment_hour = appointment_time.hour if appointment_time.hour <= 12 else appointment_time.hour - 12
+            appointment_minute = appointment_time.minute
+            appointment_period = "AM" if appointment_time.hour < 12 else "PM"
+            
+            # Set the spinboxes and period combobox
+            self.hour_spin.set(f"{appointment_hour:02d}")
+            self.minute_spin.set(f"{appointment_minute:02d}")
+            self.period_combo.set(appointment_period)
+            
+            self.reason_text.set_text(appointment_to_edit.reason)
+            
+            self.appointment_to_edit = appointment_to_edit
 
     def submit_appointment(self):
         try:
@@ -125,17 +156,23 @@ class CreateAppointment(tk.Frame):
 
             date_time: datetime.datetime = datetime.datetime.combine(date=date, time=time)
             
-            new_appointment = Appointment(
-                patient_id,
-                date_time,
-                reason,
-                created_by_id
-            )
+            if self.appointment_to_edit:
+                self.appointment_to_edit.scheduled_time = date_time
+                self.appointment_to_edit.reason = reason
+                self.session.commit()
+                showinfo("Alert", "Appointment successfully updated!")
+            else:
+                new_appointment = Appointment(
+                    patient_id,
+                    date_time,
+                    reason,
+                    created_by_id
+                )
 
-            self.session.add(new_appointment)
-            self.session.commit()
+                self.session.add(new_appointment)
+                self.session.commit()
             
-            showinfo("Alert", "Appointment successfully created!")
+                showinfo("Alert", "Appointment successfully created!")
             switch_to_window('appointments', onCreateArgs=(self.current_user, ))
         except Exception as e:
             self.session.rollback()
